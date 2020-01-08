@@ -1,0 +1,9 @@
+[Unit]
+Description=Example systemd service.
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/x0tigervncserver -passwordfile ~/.vnc/passwd -display :0
+
+[Install]
+WantedBy=multi-user.target

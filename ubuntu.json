@@ -1,0 +1,257 @@
+{
+  "variables": {
+    "iso_filename": "ubuntu-18.04.3-server-amd64.iso",
+    "iso_file_checksum": "7d8e0055d663bffa27c1718685085626cb59346e7626ba3d3f476322271f573e",
+    "user_password": "Ubuntu20!",
+    "user_username": "ubuntu"
+  },
+  "builders": [
+    {
+      "name": "vmw-base",
+      "type": "vmware-iso",
+      "boot_key_interval": "10ms",
+      "vnc_disable_password": "true",
+      "guest_os_type": "ubuntu-64",
+      "output_directory": "vm/ubuntu-vmw-base",
+      "iso_url": "iso/{{user `iso_filename`}}",
+      "iso_checksum": "{{user `iso_file_checksum`}}",
+      "iso_checksum_type": "sha256",
+      "http_directory": "http",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "headless": true,
+      "disk_size": "15360",
+      "disk_type_id": "0",
+      "cpus": "6",
+      "cores": "6",
+      "memory": "16144",
+      "vm_name": "ubuntu-vmw-base",
+      "vmdk_name": "ubuntu-vmw-base",
+      "boot_wait": "15s",
+      "ssh_wait_timeout": "2h",
+      "boot_command": [
+        "<esc><wait10><esc><esc><enter><wait>",
+        "set gfxpayload=1024x768<enter>",
+        "linux /install/vmlinuz ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed-vmw.cfg ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "initrd /install/initrd.gz<enter>",
+        "boot<enter>"
+      ],
+      "vmx_data": {
+        "firmware": "efi",
+        "ethernet0.virtualdev": "vmxnet3",
+        "scsi0.virtualdev": "pvscsi",
+        "vhv.enable": "TRUE",
+        "virtualhw.productcompatibility": "hosted",
+        "virtualhw.version": "16",
+        "tools.upgrade.policy": "manual",
+        "vmx.buildType": "release",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1",
+        "powerType.powerOff": "hard",
+        "powerType.powerOn": "hard",
+        "powerType.suspend": "hard",
+        "powerType.reset": "hard",
+        "vmx.allowNested": "TRUE"
+      },
+      "shutdown_command": "sudo shutdown -P now",
+      "shutdown_timeout": "5m",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE",
+        "tools.syncTime": "0",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1"
+      }
+    },
+    {
+      "name": "vmw-full",
+      "type": "vmware-iso",
+      "boot_key_interval": "10ms",
+      "vnc_disable_password": "true",
+      "guest_os_type": "ubuntu-64",
+      "output_directory": "vm/ubuntu-vmw",
+      "iso_url": "iso/{{user `iso_filename`}}",
+      "iso_checksum": "{{user `iso_file_checksum`}}",
+      "iso_checksum_type": "sha256",
+      "http_directory": "http",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "headless": false,
+      "disk_size": "15360",
+      "disk_type_id": "0",
+      "cpus": "6",
+      "cores": "6",
+      "memory": "16144",
+      "vm_name": "ubuntu-vmw",
+      "vmdk_name": "ubuntu-vmw",
+      "boot_wait": "15s",
+      "ssh_wait_timeout": "2h",
+      "boot_command": [
+        "<esc><wait10><esc><esc><enter><wait>",
+        "set gfxpayload=1024x768<enter>",
+        "linux /install/vmlinuz ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed-vmw.cfg ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "initrd /install/initrd.gz<enter>",
+        "boot<enter>"
+      ],
+      "vmx_data": {
+        "firmware": "efi",
+        "ethernet0.virtualdev": "vmxnet3",
+        "scsi0.virtualdev": "pvscsi",
+        "vhv.enable": "TRUE",
+        "virtualhw.productcompatibility": "hosted",
+        "virtualhw.version": "16",
+        "tools.upgrade.policy": "manual",
+        "vmx.buildType": "release",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1",
+        "powerType.powerOff": "hard",
+        "powerType.powerOn": "hard",
+        "powerType.suspend": "hard",
+        "powerType.reset": "hard",
+        "vmx.allowNested": "TRUE"
+      },
+      "shutdown_command": "sudo shutdown -P now",
+      "shutdown_timeout": "5m",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    },
+    {
+      "name": "vmw-devtools",
+      "type": "vmware-vmx",
+      "vm_name": "ubuntu-vmw-devtools",
+      "display_name": "ubuntu-vmw-devtools",
+      "headless": true,
+      "http_directory": "http",
+      "source_path": "vm/ubuntu-vmw-base/ubuntu-vmw-base.vmx",
+      "skip_compaction": "true",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "output_directory": "vm/ubuntu-vmw-devtools",
+      "shutdown_command": "sudo shutdown -P now",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    },
+    {
+      "name": "vmw-gui",
+      "type": "vmware-vmx",
+      "vm_name": "ubuntu-vmw-gui",
+      "display_name": "ubuntu-vmw-gui",
+      "headless": true,
+      "http_directory": "http",
+      "source_path": "vm/ubuntu-vmw-devtools/ubuntu-vmw-devtools.vmx",
+      "skip_compaction": "true",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "output_directory": "vm/ubuntu-vmw-gui",
+      "shutdown_command": "sudo shutdown -P now",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "only": [
+        "vmw-base",
+        "vmw-full"
+      ],
+      "script": "scripts/tools-ubuntu-openvm.sh"
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-base",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/ubuntu.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-devtools",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/devtools.sh"
+      ]
+    },
+    {
+      "type": "file",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "source": "scripts/startvnc",
+      "destination": "~/"
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/gui.sh",
+        "scripts/xfce.sh"
+      ]
+    },
+    {
+      "type": "file",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "source": "config/",
+      "destination": "~"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/minimize.sh"
+      ]
+    }
+  ]
+}
