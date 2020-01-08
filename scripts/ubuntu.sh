@@ -1,12 +1,6 @@
 #!/bin/bash
 # Shell script to prep ubuntu vm 
-# set vmware tools to debug logging
-vmwtoolsdebug ()
-{
-   sudo mkdir -p /etc/vmware-tools/  
-   sudo bash -c "echo 'log = "TRUE"' > /etc/vmware-tools/tools.conf"
-   sudo bash -c "echo 'log.file = "/var/log/vmtools.log"' >> /etc/vmware-tools/tools.conf"
-}
+
 
 # newer release specific stuff
 RELEASE=`/usr/bin/lsb_release -r|/usr/bin/awk '/Release/ { print $NF }' | cut -d . -f 1`
@@ -28,7 +22,6 @@ if [ -e /usr/bin/timedatectl ]
     sudo /bin/rm /etc/localtime
     sudo ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 fi
-
 
 # allow root login via ssh with password
 sudo bash -c " sed -i 's/PermitRootLogin .*-password/PermitRootLogin yes/g' /etc/ssh/sshd_config"

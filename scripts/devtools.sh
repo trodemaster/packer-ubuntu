@@ -14,7 +14,7 @@ done
 sudo apt-get install -y p7zip-full glances 
 
 # install release version of packer
-wget --quiet --output-document /var/tmp/packer_linux_amd64.zip https://releases.hashicorp.com/packer/1.4.2/packer_1.4.2_linux_amd64.zip
+wget --quiet --output-document /var/tmp/packer_linux_amd64.zip https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip
 if [[ -e /var/tmp/packer_linux_amd64.zip ]]; then
 sudo 	7z x /var/tmp/packer_linux_amd64.zip -o/usr/local/bin/
 sudo chmod +x /usr/local/bin/packer
@@ -50,7 +50,7 @@ if ! terraform version ; then
 fi  
 
 # vault install
-wget --quiet --output-document /var/tmp/vault_linux_amd64.zip https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip
+wget --quiet --output-document /var/tmp/vault_linux_amd64.zip https://releases.hashicorp.com/vault/1.3.1/vault_1.3.1_linux_amd64.zip
 if [[ -e /var/tmp/vault_linux_amd64.zip ]]; then
 sudo 	7z x /var/tmp/vault_linux_amd64.zip -o/usr/local/bin/
 sudo chmod +x /usr/local/bin/vault
