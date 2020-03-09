@@ -94,7 +94,7 @@
       "http_directory": "http",
       "ssh_username": "{{user `user_username`}}",
       "ssh_password": "{{user `user_password`}}",
-      "headless": false,
+      "headless": true,
       "disk_size": "15360",
       "disk_type_id": "0",
       "cpus": "6",
