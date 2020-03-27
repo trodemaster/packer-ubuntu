@@ -9,6 +9,7 @@
     {
       "name": "vmw-base",
       "type": "vmware-iso",
+      "fusion_app_path": "/Applications/VMware Fusion Tech Preview.app", 
       "boot_key_interval": "10ms",
       "vnc_disable_password": "true",
       "guest_os_type": "ubuntu-64",
@@ -84,6 +85,7 @@
     {
       "name": "vmw-full",
       "type": "vmware-iso",
+      "fusion_app_path": "/Applications/VMware Fusion Tech Preview.app", 
       "boot_key_interval": "10ms",
       "vnc_disable_password": "true",
       "guest_os_type": "ubuntu-64",
@@ -103,7 +105,6 @@
       "vm_name": "ubuntu-vmw",
       "vmdk_name": "ubuntu-vmw",
       "boot_wait": "15s",
-      "ssh_wait_timeout": "2h",
       "boot_command": [
         "<esc><wait10><esc><esc><enter><wait>",
         "set gfxpayload=1024x768<enter>",

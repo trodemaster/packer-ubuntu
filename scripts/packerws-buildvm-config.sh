@@ -15,13 +15,6 @@ fi
 #sysctl -w net.ipv4.ping_group_range='0 2147483647'
 echo 'net.ipv4.ping_group_range ="0 2147483647"' >> /etc/sysctl.conf
 
-# create swap
-fallocate -l 4g /mnt/packer.swap
-chmod 600 /mnt/packer.swap
-mkswap /mnt/packer.swap
-swapon /mnt/packer.swap
-echo '/mnt/packer.swap swap swap defaults 0 0' >> /etc/fstab
-
 # install tools
 echo "Updating apg-get packages.." 
 apt-get -q -y update &>> /tmp/update.log
@@ -89,12 +82,6 @@ sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/g' /etc/ssh/sshd_
 # destroy root password
 #passwd -d root
 #passwd -l root
-
-# vm dir 
-if [[ ! -e /files/vm ]]; then
-  mkdir -p /files/vm
-  chmod -R 777 /files
-fi
 
 # setup qemu
 QEMU_VERSION="qemu-4.2.0"

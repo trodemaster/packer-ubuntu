@@ -70,7 +70,7 @@ fi
 
 
 # fix ping with QEMU
-sudo tee -a /etc/sysctl.conf <<< 'net.ipv4.ping_group_range ="0 2147483647"'
+sudo tee -a /etc/sysctl.conf <<< 'net.ipv4.ping_group_range=0 2147483647'
 
 # install tools
 echo "Updating apg-get packages.." 
