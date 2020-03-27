@@ -1,7 +1,7 @@
 {
   "variables": {
-    "iso_filename": "ubuntu-18.04.3-server-amd64.iso",
-    "iso_file_checksum": "7d8e0055d663bffa27c1718685085626cb59346e7626ba3d3f476322271f573e",
+    "iso_filename": "ubuntu-18.04.4-server-amd64.iso",
+    "iso_file_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
     "user_password": "Ubuntu20!",
     "user_username": "ubuntu"
   },
@@ -96,7 +96,7 @@
       "http_directory": "http",
       "ssh_username": "{{user `user_username`}}",
       "ssh_password": "{{user `user_password`}}",
-      "headless": false,
+      "headless": true,
       "disk_size": "15360",
       "disk_type_id": "0",
       "cpus": "6",

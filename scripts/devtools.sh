@@ -123,7 +123,7 @@ cd /var/tmp/
 echo "Installing VMware Workstation"
 curl -s -J -L https://www.vmware.com/go/getWorkstation-linux -o /var/tmp/workstation-linux.bundle
 chmod +x /var/tmp/workstation-linux.bundle
-sudo /bin/bash /var/tmp/workstation-linux.bundle --console --eulas-agreed --required --set-setting vmware-workstation serialNumber MN411-4ZK40-48AD1-0C9KP-1085N
+sudo /bin/bash /var/tmp/workstation-linux.bundle --console --eulas-agreed --required #--set-setting vmware-workstation serialNumber THENUMBER
 rm /var/tmp/workstation-linux.bundle
 
 
