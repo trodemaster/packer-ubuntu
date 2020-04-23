@@ -28,7 +28,8 @@ fi
 
 if [[ "${RELEASE}" -ge "16" ]]; then
   echo "Installing open-vm-tools from repo"
-  sudo apt-get -y install open-vm-tools
+  sudo apt update
+  sudo apt -y install open-vm-tools
 fi
 
 # Report the version of tools installed

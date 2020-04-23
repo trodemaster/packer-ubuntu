@@ -1,0 +1,253 @@
+{
+  "variables": {
+    "user_password": "Ubuntu20!",
+    "user_username": "ubuntu"
+  },
+  "builders": [
+    {
+      "name": "vmw-base",
+      "type": "vmware-iso",
+      "fusion_app_path": "/Applications/VMware Fusion Tech Preview.app", 
+      "boot_key_interval": "4ms",
+      "disk_adapter_type": "nvme",
+      "network_adapter_type": "vmxnet3",
+      "vnc_disable_password": "true",
+      "guest_os_type": "ubuntu-64",
+      "output_directory": "vm/ubuntu2004-vmw-base",
+      "iso_url": "iso/ubuntu-20.04-legacy-server-amd64.iso",
+      "iso_checksum_type": "none",
+      "http_directory": "http",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "headless": false,
+      "disk_size": "15360",
+      "disk_type_id": "0",
+      "cpus": "6",
+      "cores": "6",
+      "memory": "16144",
+      "vm_name": "ubuntu2004-vmw-base",
+      "vmdk_name": "ubuntu2004-vmw-base",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<esc><wait10><esc><esc><enter><wait>",
+        "set gfxpayload=1024x768<enter>",
+        "linux /install/vmlinuz ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed2004-vmw.cfg ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "initrd /install/initrd.gz<enter>",
+        "boot<enter>"
+      ],
+      "vmx_data": {
+        "firmware": "efi",
+        "vhv.enable": "TRUE",
+        "virtualhw.productcompatibility": "hosted",
+        "virtualhw.version": "16",
+        "tools.upgrade.policy": "manual",
+        "vmx.buildType": "release",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1",
+        "powerType.powerOff": "hard",
+        "powerType.powerOn": "hard",
+        "powerType.suspend": "hard",
+        "powerType.reset": "hard",
+        "vmx.allowNested": "TRUE"
+      },
+      "shutdown_command": "sudo shutdown -P now",
+      "shutdown_timeout": "5m",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE",
+        "tools.syncTime": "0",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1"
+      }
+    },
+    {
+      "name": "vmw-full",
+      "type": "vmware-iso",
+      "fusion_app_path": "/Applications/VMware Fusion Tech Preview.app", 
+      "boot_key_interval": "10ms",
+      "vnc_disable_password": "true",
+      "guest_os_type": "ubuntu-64",
+      "output_directory": "vm/ubuntu2004-vmw",
+      "iso_url": "iso/ubuntu-20.04-legacy-server-amd64.iso",
+      "iso_checksum_type": "none",
+      "http_directory": "http",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "headless": true,
+      "disk_size": "15360",
+      "disk_type_id": "0",
+      "cpus": "6",
+      "cores": "6",
+      "memory": "16144",
+      "vm_name": "ubuntu2004-vmw",
+      "vmdk_name": "ubuntu2004-vmw",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<esc><wait10><esc><esc><enter><wait>",
+        "set gfxpayload=1024x768<enter>",
+        "linux /install/vmlinuz ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed2004-vmw.cfg ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "initrd /install/initrd.gz<enter>",
+        "boot<enter>"
+      ],
+      "vmx_data": {
+        "firmware": "efi",
+        "ethernet0.virtualdev": "vmxnet3",
+        "scsi0.virtualdev": "pvscsi",
+        "vhv.enable": "TRUE",
+        "virtualhw.productcompatibility": "hosted",
+        "virtualhw.version": "16",
+        "tools.upgrade.policy": "manual",
+        "vmx.buildType": "release",
+        "time.synchronize.continue": "1",
+        "time.synchronize.restore": "1",
+        "time.synchronize.resume.disk": "1",
+        "time.synchronize.shrink": "1",
+        "time.synchronize.tools.startup": "1",
+        "time.synchronize.tools.enable": "1",
+        "time.synchronize.resume.host": "1",
+        "powerType.powerOff": "hard",
+        "powerType.powerOn": "hard",
+        "powerType.suspend": "hard",
+        "powerType.reset": "hard",
+        "vmx.allowNested": "TRUE"
+      },
+      "shutdown_command": "sudo shutdown -P now",
+      "shutdown_timeout": "5m",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    },
+    {
+      "name": "vmw-devtools",
+      "type": "vmware-vmx",
+      "vm_name": "ubuntu2004-vmw-devtools",
+      "display_name": "ubuntu2004-vmw-devtools",
+      "headless": false,
+      "http_directory": "http",
+      "source_path": "vm/ubuntu2004-vmw-base/ubuntu2004-vmw-base.vmx",
+      "skip_compaction": "true",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "output_directory": "vm/ubuntu2004-vmw-devtools",
+      "shutdown_command": "sudo shutdown -P now",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    },
+    {
+      "name": "vmw-gui",
+      "type": "vmware-vmx",
+      "vm_name": "ubuntu2004-vmw-gui",
+      "display_name": "ubuntu2004-vmw-gui",
+      "headless": true,
+      "http_directory": "http",
+      "source_path": "vm/ubuntu2004-vmw-devtools/ubuntu2004-vmw-devtools.vmx",
+      "skip_compaction": "true",
+      "ssh_username": "{{user `user_username`}}",
+      "ssh_password": "{{user `user_password`}}",
+      "output_directory": "vm/ubuntu2004-vmw-gui",
+      "shutdown_command": "sudo shutdown -P now",
+      "vmx_data_post": {
+        "ide1:0.startConnected": "FALSE",
+        "ide1:0.deviceType": "atapi-cdrom",
+        "ide1:0.fileName": "cdrom0",
+        "ide1:0.present": "TRUE"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "only": [
+        "vmw-base",
+        "vmw-full"
+      ],
+      "script": "scripts/tools-ubuntu-openvm.sh"
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-base",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/ubuntu.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-devtools",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/devtools.sh"
+      ]
+    },
+    {
+      "type": "file",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "source": "scripts/startvnc",
+      "destination": "~/"
+    },
+    {
+      "type": "shell",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "scripts": [
+        "scripts/gui.sh",
+        "scripts/xfce.sh"
+      ]
+    },
+    {
+      "type": "file",
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],
+      "source": "config/",
+      "destination": "~"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/minimize.sh"
+      ]
+    }
+  ]
+}
