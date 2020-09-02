@@ -15,7 +15,7 @@
       "guest_os_type": "ubuntu-64",
       "output_directory": "vm/ubuntu2004-vmw-base",
       "iso_url": "iso/ubuntu-20.04-legacy-server-amd64.iso",
-      "iso_checksum_type": "none",
+      "iso_checksum": "36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73",
       "http_directory": "http",
       "ssh_username": "{{user `user_username`}}",
       "ssh_password": "{{user `user_password`}}",
@@ -45,7 +45,7 @@
         "firmware": "efi",
         "vhv.enable": "TRUE",
         "virtualhw.productcompatibility": "hosted",
-        "virtualhw.version": "16",
+        "virtualhw.version": "18",
         "tools.upgrade.policy": "manual",
         "vmx.buildType": "release",
         "time.synchronize.continue": "1",
@@ -82,12 +82,12 @@
       "name": "vmw-full",
       "type": "vmware-iso",
       "fusion_app_path": "/Applications/VMware Fusion Tech Preview.app", 
-      "boot_key_interval": "10ms",
+      "boot_key_interval": "5ms",
       "vnc_disable_password": "true",
       "guest_os_type": "ubuntu-64",
       "output_directory": "vm/ubuntu2004-vmw",
       "iso_url": "iso/ubuntu-20.04-legacy-server-amd64.iso",
-      "iso_checksum_type": "none",
+      "iso_checksum": "36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73",
       "http_directory": "http",
       "ssh_username": "{{user `user_username`}}",
       "ssh_password": "{{user `user_password`}}",
@@ -100,6 +100,8 @@
       "vm_name": "ubuntu2004-vmw",
       "vmdk_name": "ubuntu2004-vmw",
       "boot_wait": "5s",
+      "disk_adapter_type":"nvme",
+      "version": "18",
       "boot_command": [
         "<esc><wait10><esc><esc><enter><wait>",
         "set gfxpayload=1024x768<enter>",
@@ -116,10 +118,8 @@
       "vmx_data": {
         "firmware": "efi",
         "ethernet0.virtualdev": "vmxnet3",
-        "scsi0.virtualdev": "pvscsi",
         "vhv.enable": "TRUE",
         "virtualhw.productcompatibility": "hosted",
-        "virtualhw.version": "16",
         "tools.upgrade.policy": "manual",
         "vmx.buildType": "release",
         "time.synchronize.continue": "1",
@@ -169,7 +169,7 @@
       "type": "vmware-vmx",
       "vm_name": "ubuntu2004-vmw-gui",
       "display_name": "ubuntu2004-vmw-gui",
-      "headless": true,
+      "headless": false,
       "http_directory": "http",
       "source_path": "vm/ubuntu2004-vmw-devtools/ubuntu2004-vmw-devtools.vmx",
       "skip_compaction": "true",
@@ -245,7 +245,10 @@
     },
     {
       "type": "shell",
-      "scripts": [
+      "only": [
+        "vmw-gui",
+        "vmw-full"
+      ],      "scripts": [
         "scripts/minimize.sh"
       ]
     }
