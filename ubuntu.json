@@ -9,6 +9,7 @@
     {
       "name": "vmw-base",
       "type": "vmware-iso",
+      "ssh_timeout": "10m",
       "boot_key_interval": "4ms",
       "disk_adapter_type": "nvme",
       "network_adapter_type": "vmxnet3",
@@ -29,7 +30,7 @@
       "version":"18",
       "vm_name": "ubuntu2004-vmw-base",
       "vmdk_name": "ubuntu2004-vmw-base",
-      "boot_wait": "1s",
+      "boot_wait": "3s",
       "boot_command": [
         "<enter>",
         "c",
@@ -38,7 +39,7 @@
         "boot<enter>"
       ],
       "vmx_data": {
-        "bios.bootDelay": "9000",
+        "bios.bootDelay": "4000",
         "uefi.secureBoot.enabled": "TRUE",
         "firmware": "efi",
         "vhv.enable": "TRUE",

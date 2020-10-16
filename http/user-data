@@ -1,8 +1,8 @@
 #cloud-config
 autoinstall:
   version: 1
-  early-commands:
-    - systemctl stop ssh
+#  early-commands:
+#    - systemctl stop ssh
   locale: "en_US.UTF-8"
   refresh-installer:
     update: true
@@ -12,6 +12,14 @@ autoinstall:
     layout:
       name: "direct"  
   identity:
-    hostname: ubuntu-server
-    password: "$6$exDY1mhS4KUYCE/2$zmn9ToZwTKLhCw.b4/b.ZRTIZM30JZ4QrOQ2aOXJ8yk96xpcCof0kxKwuX1kqLG/ygbJ1f8wxED22bTL4F46P0"
+    hostname: ubuntu2004
+    # openssl passwd -6 <password>
+    password: "$6$iO.4lzAjvg9s9YJO$ZxJm9TJez0LTxtw7M1/umos11KZyQgG5.LqRNUm.pmI3FS93Yb/y1MJzYeWwlI.azohkqtCeMW8Wyy0oftjMG0"
     username: ubuntu
+  ssh:
+    install-server: yes
+  user-data:
+    disable_root: false
+  late-commands:
+    - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
+    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
