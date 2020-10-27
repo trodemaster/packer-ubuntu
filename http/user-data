@@ -1,8 +1,8 @@
 #cloud-config
 autoinstall:
   version: 1
-#  early-commands:
-#    - systemctl stop ssh
+  early-commands:
+    - systemctl stop ssh
   locale: "en_US.UTF-8"
   refresh-installer:
     update: true
