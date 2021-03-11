@@ -11,14 +11,24 @@
 # views them; you can later on change their type. Read the variables type
 # constraints documentation
 # https://www.packer.io/docs/from-1.5/variables#type-constraints for more info.
-variable "iso_file_checksum" {
+variable "iso_file_checksum_x64" {
   type    = string
   default = "sha256:443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93"
 }
 
-variable "iso_filename" {
+variable "iso_filename_x64" {
   type    = string
   default = "ubuntu-20.04.1-live-server-amd64.iso"
+}
+
+variable "iso_file_checksum_arm" {
+  type    = string
+  default = "sha256:443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93"
+}
+
+variable "iso_filename_arm" {
+  type    = string
+  default = "ubuntu-20.04.1-live-server-arm64.iso"
 }
 
 variable "user_password" {
@@ -189,6 +199,66 @@ source "vmware-vmx" "customize" {
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "FALSE"
   }
+}
+
+source "qemu" "base" {
+  iso_checksum      = "${var.iso_file_checksum_arm}"
+  iso_url           = "iso/${var.iso_filename_arm}"
+  output_directory  = "vm"
+  shutdown_command  = "echo 'packer' | sudo -S shutdown -P now"
+  disk_size         = 1024 * 32
+  format            = "qcow2"
+  memory = 1024 * 4
+  accelerator       = "hvf"
+  http_directory    = "http"
+  ssh_password     = "${var.user_password}"
+  ssh_username     = "${var.user_username}"
+  ssh_timeout       = "20m"
+  vm_name           = "ubuntu.qcow2"
+  net_device        = "virtio-net"
+  disk_interface    = "virtio"
+  # boot_wait         = "10s"
+  qemu_binary = "qemu-system-aarch64"
+  qemuargs = [ 
+                [ "-monitor", "stdio" ],
+                [ "-machine", "virt,highmem=off,accel=hvf"],
+                [ "-drive", "if=pflash,format=raw,file=iso/flash0.img,readonly" ],
+                [ "-drive", "if=pflash,format=raw,file=iso/flash1.img" ],
+                [ "-device", "virtio-gpu-pci" ],
+                [ "-cpu", "cortex-a72" ],
+                [ "-device", "qemu-xhci" ],
+                [ "-device", "usb-kbd" ],
+                [ "-device", "usb-tablet" ],
+                [ "-device", "intel-hda" ],
+                [ "-device", "hda-duplex" ],
+                [ "-object", "rng-random,filename=/dev/urandom,id=rng0" ],
+                [ "-drive", "if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso" ],
+                [ "-device", "virtio-rng-pci,rng=rng0" ],
+                [ "-device", "virtio-scsi-pci,id=scsi0" ],
+                [ "-drive", "file=vm/ubuntu.qcow2,if=virtio,cache=writethrough,format=qcow2" ],
+                [ "-boot", "strict=off" ]
+                ]
+  machine_type = "virt"
+  display = "cocoa,show-cursor=on"
+  boot_command      = [
+    "exit",
+    "<enter>",
+    "<down><down><wait>",
+    "<enter><enter><wait>",
+    "<down><down><wait>",
+    "<enter><wait>",
+    "c",
+    "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
+    "initrd /casper/initrd <enter>", "boot<enter>"
+    ]
+}
+
+
+
+
+build {
+
+  sources = ["source.qemu.base"]
 }
 
 build {
