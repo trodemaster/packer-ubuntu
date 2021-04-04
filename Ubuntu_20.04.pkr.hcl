@@ -222,7 +222,7 @@ source "qemu" "base" {
   qemuargs = [ 
                 [ "-monitor", "stdio" ],
                 [ "-drive" , "file=iso/pflash0.img,format=raw,if=pflash,readonly=on,id=pflash0" ],
-                [ "-drive" , "file=iso/pflash1.img,format=raw,if=pflash,id=pflash1" ],
+#                [ "-drive" , "file=iso/pflash1.img,format=raw,if=pflash,id=pflash1" ],
                 [ "-drive", "file=vm/ubuntu.qcow2,if=virtio,cache=unsafe,format=qcow2,id=disk0" ],
                 [ "-drive", "if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso,readonly=on,id=cdrom0" ],
                 [ "-machine", "virt,highmem=off,accel=hvf"],
@@ -244,19 +244,20 @@ source "qemu" "base" {
   machine_type = "virt"
   display = "cocoa,show-cursor=on"
   boot_command      = [
-"<esc><wait2m>",
-#    "<down><down><down><wait>",
-#    "<enter><enter><wait>",
-#    "<down><down><down><enter>",
-#    "<enter><down><down>++<enter><wait2m>",
-#    "<down><enter>",
-#    "<up><up><up><enter>",
-#    "<down><down><down><down><enter>",
-#    "<up><up><up><enter>",
-#    "<f10>y<esc>",
-#    "<down><down><enter><wait>",
-#    "exit<wait15><wait>",
-    "c",
+"<esc><wait>",
+    "<down><down><down><enter>", # boot maintanance manager
+    "<f9>y<wait><f10>y<wait>", # rest to default order
+    "<enter><down><down><down><enter>", # boot order
+        "<f9>y<wait><f10>y<wait>", # rest to default order
+    "<enter><down>+<enter>", # set hard disk as first boot device 2
+    "<down><enter>", # save and commit
+    "<up><up><up><enter>", # back to main
+    "<down><down><down><down><enter>", # boot next menu
+    "<up><up><up><up><enter>", # set cdrom as next boot device 2
+    "<f10>y<esc>", # save and return to menu
+    "<down><enter><wait>", # continue boot
+    "<wait5>", # wait for installer bootloader
+    "c", # enter grub and send boot commands next
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>", "boot<enter>"
     ]
