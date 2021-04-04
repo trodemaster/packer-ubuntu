@@ -1,4 +1,24 @@
-qemu-system-aarch64 -machine virt,highmem=off -accel hvf -cpu cortex-a72 -smp 2 -m 4096 -drive if=pflash,format=raw,file=iso/flash0.img,readonly -drive if=pflash,format=raw,file=iso/flash1.img -device virtio-gpu-pci -drive if=virtio,format=qcow2,file=hda.qcow2 -device virtio-scsi-pci,id=scsi0 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::8022-:22 -display default,show-cursor=on -vga std -drive if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso -device qemu-xhci -device usb-kbd -device usb-tablet -device intel-hda -device hda-duplex
+qemu-system-aarch64 -machine virt,highmem=off \
+  -accel hvf \
+  -cpu cortex-a72 \
+  -smp 2 \
+  -m 4096 \
+  -bios iso/QEMU_EFI.fd \
+  -device virtio-gpu-pci \
+  -drive if=virtio,format=qcow2,file=ubuntu.qcow2 \
+  -device virtio-scsi-pci,id=scsi0 \
+  -object rng-random,filename=/dev/urandom,id=rng0 \
+  -device virtio-rng-pci,rng=rng0 \
+  -device virtio-net-pci,netdev=net0 \
+  -netdev user,id=net0,hostfwd=tcp::8022-:22 \
+  -display default,show-cursor=on \
+  -vga std \
+  -drive if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso \
+  -device qemu-xhci \
+  -device usb-kbd \
+  -device usb-tablet \
+  -device intel-hda \
+  -device hda-duplex
 
 exit 0
 

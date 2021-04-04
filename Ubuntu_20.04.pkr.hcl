@@ -217,36 +217,45 @@ source "qemu" "base" {
   vm_name           = "ubuntu.qcow2"
   net_device        = "virtio-net"
   disk_interface    = "virtio"
-  # boot_wait         = "10s"
+  boot_wait         = "1s"
   qemu_binary = "qemu-system-aarch64"
   qemuargs = [ 
                 [ "-monitor", "stdio" ],
+                [ "-drive" , "file=iso/pflash0.img,format=raw,if=pflash,readonly=on,id=pflash0" ],
+                [ "-drive" , "file=iso/pflash1.img,format=raw,if=pflash,id=pflash1" ],
+                [ "-drive", "file=vm/ubuntu.qcow2,if=virtio,cache=unsafe,format=qcow2,id=disk0" ],
+                [ "-drive", "if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso,readonly=on,id=cdrom0" ],
                 [ "-machine", "virt,highmem=off,accel=hvf"],
-                [ "-drive", "if=pflash,format=raw,file=iso/flash0.img,readonly" ],
-                [ "-drive", "if=pflash,format=raw,file=iso/flash1.img" ],
                 [ "-device", "virtio-gpu-pci" ],
                 [ "-cpu", "cortex-a72" ],
+                [ "-smp", "2" ],
+                [ "-vga", "std" ],
+                [ "-m", "4096" ],
                 [ "-device", "qemu-xhci" ],
                 [ "-device", "usb-kbd" ],
                 [ "-device", "usb-tablet" ],
                 [ "-device", "intel-hda" ],
                 [ "-device", "hda-duplex" ],
                 [ "-object", "rng-random,filename=/dev/urandom,id=rng0" ],
-                [ "-drive", "if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso" ],
                 [ "-device", "virtio-rng-pci,rng=rng0" ],
                 [ "-device", "virtio-scsi-pci,id=scsi0" ],
-                [ "-drive", "file=vm/ubuntu.qcow2,if=virtio,cache=writethrough,format=qcow2" ],
                 [ "-boot", "strict=off" ]
-                ]
+              ]
   machine_type = "virt"
   display = "cocoa,show-cursor=on"
   boot_command      = [
-    "exit",
-    "<enter>",
-    "<down><down><wait>",
-    "<enter><enter><wait>",
-    "<down><down><wait>",
-    "<enter><wait>",
+"<esc><wait2m>",
+#    "<down><down><down><wait>",
+#    "<enter><enter><wait>",
+#    "<down><down><down><enter>",
+#    "<enter><down><down>++<enter><wait2m>",
+#    "<down><enter>",
+#    "<up><up><up><enter>",
+#    "<down><down><down><down><enter>",
+#    "<up><up><up><enter>",
+#    "<f10>y<esc>",
+#    "<down><down><enter><wait>",
+#    "exit<wait15><wait>",
     "c",
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>", "boot<enter>"
@@ -257,8 +266,10 @@ source "qemu" "base" {
 
 
 build {
-
   sources = ["source.qemu.base"]
+  provisioner "shell" {
+   inline = ["sleep 9999"]
+  }
 }
 
 build {
