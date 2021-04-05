@@ -244,20 +244,9 @@ source "qemu" "base" {
   machine_type = "virt"
   display = "cocoa,show-cursor=on"
   boot_command      = [
-"<esc><wait>",
-    "<down><down><down><enter>", # boot maintanance manager
-    "<f9>y<wait><f10>y<wait>", # rest to default order
-    "<enter><down><down><down><enter>", # boot order
-        "<f9>y<wait><f10>y<wait>", # rest to default order
-    "<enter><down>+<enter>", # set hard disk as first boot device 2
-    "<down><enter>", # save and commit
-    "<up><up><up><enter>", # back to main
-    "<down><down><down><down><enter>", # boot next menu
-    "<up><up><up><up><enter>", # set cdrom as next boot device 2
-    "<f10>y<esc>", # save and return to menu
-    "<down><enter><wait>", # continue boot
-    "<wait5>", # wait for installer bootloader
+"<wait5>",
     "c", # enter grub and send boot commands next
+    "<wait5>",
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>", "boot<enter>"
     ]
@@ -269,8 +258,12 @@ source "qemu" "base" {
 build {
   sources = ["source.qemu.base"]
   provisioner "shell" {
-   inline = ["sleep 9999"]
-  }
+    scripts = [
+    "scripts/ubuntu.sh",
+    "scripts/devtools.sh",
+    "scripts/minimize.sh"
+    ]
+}
 }
 
 build {

@@ -18,8 +18,12 @@ autoinstall:
     username: ubuntu
   ssh:
     install-server: yes
+  packages:
+    - efibootmgr
   user-data:
     disable_root: false
   late-commands:
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
     - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    - /target/usr/bin/efibootmgr -o 0006,0005,0004,0003,0002,0001,0000
+#    - sleep 300
