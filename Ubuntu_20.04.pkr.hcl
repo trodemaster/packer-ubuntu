@@ -227,7 +227,7 @@ source "qemu" "base" {
                 [ "-drive", "if=virtio,format=raw,file=iso/ubuntu-20.04.2-live-server-arm64.iso,readonly=on,id=cdrom0" ],
                 [ "-machine", "virt,highmem=off,accel=hvf"],
                 [ "-device", "virtio-gpu-pci" ],
-                [ "-cpu", "cortex-a72" ],
+                [ "-cpu", "max" ],
                 [ "-smp", "2" ],
                 [ "-vga", "std" ],
                 [ "-m", "4096" ],
