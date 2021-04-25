@@ -14,7 +14,7 @@ autoinstall:
   identity:
     hostname: ubuntu2004
     # openssl passwd -6 <password>
-    password: "$6$iO.4lzAjvg9s9YJO$ZxJm9TJez0LTxtw7M1/umos11KZyQgG5.LqRNUm.pmI3FS93Yb/y1MJzYeWwlI.azohkqtCeMW8Wyy0oftjMG0"
+    password: "$6$4TSl64ecoqGXlR7Q$36dUXiRS5SqHrIUmN0bbtqI.AYCpU67MqCZX8ZZrE9SEXIksCcag9PXjvK4BTtJ1hgkzcPATkvPlkdUsLt9G61"
     username: ubuntu
   ssh:
     install-server: yes

@@ -13,6 +13,13 @@ done
 # fix ping with QEMU
 sudo tee -a /etc/sysctl.conf <<< 'net.ipv4.ping_group_range=0 2147483647'
 
+# config gpg
+#sudo apt install pinentry-tty
+#sudo update-alternatives --config pinentry
+# ~/.gnupg/gpg-agent.conf
+# pinentry-program /usr/bin/pinentry-tty
+# default-cache-ttl 14400
+# max-cache-ttl 14400
 
 # install tools
 echo "Updating apg-get packages.." 
@@ -28,7 +35,7 @@ sudo apt -y install p7zip-full glances jq
 #sudo apt-get -y autoremove --purge 
 echo "adding lots of needed packaes"
 sudo apt -y install htop tmux git make pigz libxcursor1 bmon jq pkg-config build-essential flex libaio1 libpcsclite1 tree bison
-sudo apt -y install python3 python3-pip virtualenv 
+sudo apt -y install python3 python3-pip virtualenv mlocate
 
 ## install release version of packer
 #wget --quiet --output-document /var/tmp/packer_linux_amd64.zip https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip
