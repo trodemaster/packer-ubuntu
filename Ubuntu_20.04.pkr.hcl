@@ -48,7 +48,7 @@ source "vmware-iso" "base" {
     "boot<enter>"
   ]
   boot_key_interval    = "4ms"
-  boot_wait            = "2s"
+  boot_wait            = "4s"
   cores                = "6"
   cpus                 = "6"
   disk_adapter_type    = "nvme"
