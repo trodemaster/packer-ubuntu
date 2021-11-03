@@ -41,13 +41,16 @@ done
 # load the latest updates & packages
 sudo apt update
 sudo apt -y dist-upgrade
-sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu
+sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon
 sudo purge-old-kernels -y
 sudo apt autoremove --purge
 
 # Disable IPv6 Privacy addresses
-sudo bash -c "sed -i 's/net.ipv6.conf.all.use_tempaddr = 2/net.ipv6.conf.all.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf" 
-sudo bash -c "sed -i 's/net.ipv6.conf.default.use_tempaddr = 2/net.ipv6.conf.default.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf" 
+sudo sed -i 's/net.ipv6.conf.all.use_tempaddr = 2/net.ipv6.conf.all.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
+sudo sed -i 's/net.ipv6.conf.default.use_tempaddr = 2/net.ipv6.conf.default.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
+
+# fixup sshd_conf
+sudo sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
 
 # set timezone to UTC
 if [[ -e /usr/bin/timedatectl ]];then
@@ -96,7 +99,7 @@ fi
 cat <<'PROFILE' > ${HOME}/.bash_profile
 export GOPATH=${HOME}/code/go
 export PATH=$PATH:${HOME}/code/go/bin:${HOME}/.local/bin/
-export TERM=xterm-color
+export TERM=xterm-color-256
 export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
 export CLICOLOR=1
 
@@ -118,10 +121,12 @@ export PS1="\[\e[;34m\]\u\[\e[1;37m\]@\h\[\e[;32m\]:\W$ \[\e[0m\]"
 
 # seup powerline
 if ( command -v powerline-daemon > /dev/null 2>&1 ); then
-  powerline-daemon -q
-  export POWERLINE_BASH_CONTINUATION=1
-  export POWERLINE_BASH_SELECT=1
-  source ${HOME}/.local/lib/python3.8/site-packages/powerline/bindings/bash/powerline.sh
+  if [[ $(tty) =~ "dev/pts" ]];then
+    powerline-daemon -q
+    export POWERLINE_BASH_CONTINUATION=1
+    export POWERLINE_BASH_SELECT=1
+    source ${HOME}/.local/lib/python3*/site-packages/powerline/bindings/bash/powerline.sh
+  fi
 fi
 
 PROFILE
