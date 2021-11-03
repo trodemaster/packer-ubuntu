@@ -38,15 +38,19 @@ variable "disk_gb" {
   default = "30"
 }
 
-# https://cdimage.ubuntu.com/ubuntu-server/focal/daily-live/current/focal-live-server-amd64.iso
-# "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${cpu_arch}.iso"
-# https://cdimage.ubuntu.com/ubuntu-server/focal/daily-live/current/SHA256SUMS
-# "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
+variable "ssh_key" {
+  type = string
+  default = "nachos3"
+}
 
 source "vmware-iso" "ubuntu" {
   display_name         = "{{build_name}} ${var.os_version}"
   vm_name              = "{{build_name}}_${var.os_version}"
   vmdk_name            = "{{build_name}}_${var.os_version}"  
+  http_content = { 
+    "/meta-data" = ""
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key})
+  }
   boot_command      = [
     "<enter>",
     "c",
@@ -63,7 +67,7 @@ source "vmware-iso" "ubuntu" {
   disk_type_id      = "0"
   guest_os_type     = "ubuntu-64"
   headless          = false
-  http_directory    = "http"
+  skip_compaction  = true
   iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
   iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"

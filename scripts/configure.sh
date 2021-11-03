@@ -34,14 +34,27 @@ fi
 
 # wait for apt to be ready
 while sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock >/dev/null 2>&1; do
-   echo "waiting for apt to be ready"
-   sleep 1
+  echo "waiting for apt to be ready"
+  sleep 1
 done
+
+# remove snaps
+if [[ -f /bin/running-in-container ]]; then
+  echo "running in container"
+else
+  sudo snap remove lxd
+  sudo systemctl stop snapd
+  sudo apt -y purge snapd
+  rm -rf ~/snap
+  sudo rm -rf /snap
+  sudo rm -rf /var/snap
+  sudo rm -rf /var/lib/snapd
+fi
 
 # load the latest updates & packages
 sudo apt update
 sudo apt -y dist-upgrade
-sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon
+sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree
 sudo purge-old-kernels -y
 sudo apt autoremove --purge
 
@@ -53,7 +66,7 @@ sudo sed -i 's/net.ipv6.conf.default.use_tempaddr = 2/net.ipv6.conf.default.use_
 sudo sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
 
 # set timezone to UTC
-if [[ -e /usr/bin/timedatectl ]];then
+if [[ -e /usr/bin/timedatectl ]]; then
   sudo timedatectl set-timezone US/Pacific
 fi
 
@@ -63,7 +76,7 @@ if ! [[ -d ~/code ]]; then
 fi
 
 # install golang
-wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz 
+wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
 sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
 PATH=$PATH:/usr/local/go/bin
 go version
@@ -96,7 +109,7 @@ if ! [[ -d ~/.config/powerline ]]; then
 fi
 
 # setup profile
-cat <<'PROFILE' > ${HOME}/.bash_profile
+cat <<'PROFILE' >${HOME}/.bash_profile
 export GOPATH=${HOME}/code/go
 export PATH=$PATH:${HOME}/code/go/bin:${HOME}/.local/bin/
 export TERM=xterm-color-256
@@ -118,6 +131,9 @@ shopt -s histappend                     # append to history, don't overwrite it
 
 # prompt
 export PS1="\[\e[;34m\]\u\[\e[1;37m\]@\h\[\e[;32m\]:\W$ \[\e[0m\]"
+
+# aliases
+alias ls="ls -1"
 
 # seup powerline
 if ( command -v powerline-daemon > /dev/null 2>&1 ); then
@@ -144,4 +160,4 @@ terraform version
 sudo logrotate -f /etc/logrotate.conf
 
 # Clear bash history
-> ~/.bash_history
+>~/.bash_history
