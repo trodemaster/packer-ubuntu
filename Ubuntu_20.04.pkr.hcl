@@ -1,19 +1,6 @@
-# This file was autogenerate by the BETA 'packer hcl2_upgrade' command. We
-# recommend double checking that everything is correct before going forward. We
-# also recommend treating this file as disposable. The HCL2 blocks in this
-# file can be moved to other files. For example, the variable blocks could be
-# moved to their own 'variables.pkr.hcl' file, etc. Those files need to be
-# suffixed with '.pkr.hcl' to be visible to Packer. To use multiple files at
-# once they also need to be in the same folder. 'packer inspect folder/'
-# will describe to you what is in that folder.
-
-# All generated input variables will be of string type as this how Packer JSON
-# views them; you can later on change their type. Read the variables type
-# constraints documentation
-# https://www.packer.io/docs/from-1.5/variables#type-constraints for more info.
 variable "iso_file_checksum_x64" {
   type    = string
-  default = "sha256:443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93"
+  default = file("https://cdimage.ubuntu.com/ubuntu-server/focal/daily-live/current/SHA256SUMS")
 }
 
 variable "iso_filename_x64" {
@@ -23,7 +10,7 @@ variable "iso_filename_x64" {
 
 variable "iso_file_checksum_arm" {
   type    = string
-  default = "sha256:443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93"
+  default = file("https://cdimage.ubuntu.com/ubuntu-server/focal/daily-live/current/SHA256SUMS")
 }
 
 variable "iso_filename_arm" {

@@ -12,18 +12,19 @@ autoinstall:
     layout:
       name: "direct"  
   identity:
-    hostname: ubuntu2004
+    hostname: ubuntu
     # openssl passwd -6 <password>
-    password: "$6$iO.4lzAjvg9s9YJO$ZxJm9TJez0LTxtw7M1/umos11KZyQgG5.LqRNUm.pmI3FS93Yb/y1MJzYeWwlI.azohkqtCeMW8Wyy0oftjMG0"
+    password: "$6$cBeg34i2TUc39pNU$k04L2O.t222tKmw7/Kj2UnvQxR29Ag4SNoPywH3/aSQCAor78XpcYDygsuTHwW7Sm82/vHnJjCz5aA.WL5ym7/"
     username: ubuntu
   ssh:
     install-server: yes
   packages:
     - efibootmgr
+    - linux-virtual-hwe-20.04
   user-data:
     disable_root: false
   late-commands:
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
-    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
-    - /target/usr/bin/efibootmgr -o 0006,0005,0004,0003,0002,0001,0000
+    - echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/sudo
+#    - /target/usr/bin/efibootmgr /target/usr/bin/efibootmgr -o 0006,0005,0004,0003,0002,0001,0000
 #    - sleep 300
