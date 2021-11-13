@@ -105,6 +105,7 @@ source "vmware-iso" "ubuntu" {
     "ide1:0.fileName"       = "cdrom0"
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "FALSE"
+    # remove optical drives
   }
 }
 

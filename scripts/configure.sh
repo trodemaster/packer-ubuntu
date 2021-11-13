@@ -52,9 +52,10 @@ else
 fi
 
 # load the latest updates & packages
+export DEBIAN_FRONTEND=noninteractive
 sudo apt update
 sudo apt -y dist-upgrade
-sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree
+sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree acl apt-transport-https
 sudo purge-old-kernels -y
 sudo apt autoremove --purge
 
@@ -108,12 +109,17 @@ if ! [[ -d ~/.config/powerline ]]; then
   mv config.json ~/.config/powerline/
 fi
 
+# k8s
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt update
+sudo apt install -y kubectl
+
 # setup profile
 cat <<'PROFILE' >${HOME}/.bash_profile
 export GOPATH=${HOME}/code/go
 export PATH=$PATH:${HOME}/code/go/bin:${HOME}/.local/bin/
-export TERM=xterm-color-256
-export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
+export TERM=xterm-256color
 export CLICOLOR=1
 
 if [[ -e ${HOME}/.fzf_completion.bash ]]; then
@@ -134,6 +140,7 @@ export PS1="\[\e[;34m\]\u\[\e[1;37m\]@\h\[\e[;32m\]:\W$ \[\e[0m\]"
 
 # aliases
 alias ls="ls -1"
+alias eaw="sudo setfacl -m u:${USER}:rw"
 
 # seup powerline
 if ( command -v powerline-daemon > /dev/null 2>&1 ); then
@@ -146,6 +153,9 @@ if ( command -v powerline-daemon > /dev/null 2>&1 ); then
 fi
 
 PROFILE
+
+# remove motd
+touch $HOME/.hushlogin
 
 # hashicorp
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
