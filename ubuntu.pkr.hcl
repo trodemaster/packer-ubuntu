@@ -9,65 +9,65 @@ variable "user_username" {
 }
 
 variable "cpu_arch" {
-  type = string
+  type    = string
   default = "amd64"
 }
 
 variable "os_version" {
-  type = string
+  type    = string
   default = "20.04.3"
 }
 
 variable "os_codename" {
-  type = string
+  type    = string
   default = "focal"
 }
 
 variable "cpu_count" {
-  type = string
+  type    = string
   default = "6"
 }
 
 variable "ram_gb" {
-  type = string
+  type    = string
   default = "16"
 }
 
 variable "disk_gb" {
-  type = string
+  type    = string
   default = "30"
 }
 
 variable "ssh_key" {
-  type = string
+  type    = string
   default = "nachos3"
 }
 
 source "vmware-iso" "ubuntu" {
-  display_name         = "{{build_name}} ${var.os_version}"
-  vm_name              = "{{build_name}}_${var.os_version}"
-  vmdk_name            = "{{build_name}}_${var.os_version}"  
-  http_content = { 
+  display_name = "{{build_name}} ${var.os_version}"
+  vm_name      = "{{build_name}}_${var.os_version}"
+  vmdk_name    = "{{build_name}}_${var.os_version}"
+  http_content = {
     "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key})
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key })
   }
-  boot_command      = [
+  boot_command = [
     "<enter>",
     "c",
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>", "boot<enter>"
-    ]
+  ]
   boot_key_interval = "4ms"
   boot_wait         = "4s"
-  cpus                 = var.cpu_count
-  cores                = var.cpu_count
-  memory               = var.ram_gb * 1024
+  cpus              = var.cpu_count
+  cores             = var.cpu_count
+  memory            = var.ram_gb * 1024
   disk_adapter_type = "nvme"
   disk_size         = var.disk_gb * 1024
   disk_type_id      = "0"
   guest_os_type     = "ubuntu-64"
   headless          = false
-  skip_compaction  = true
+  skip_compaction   = true
   iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
   iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"
@@ -77,7 +77,7 @@ source "vmware-iso" "ubuntu" {
   ssh_timeout       = "10m"
   ssh_username      = "${var.user_username}"
   version           = "19"
-    vmx_data = {
+  vmx_data = {
     "bios.bootDelay"                 = "4000"
     "ethernet0.virtualdev"           = "vmxnet3"
     firmware                         = "efi"
@@ -100,26 +100,29 @@ source "vmware-iso" "ubuntu" {
     "vmx.buildType"                  = "release"
   }
   vmx_data_post = {
-    "bios.bootDelay"                 = "0000"
+    "bios.bootDelay" = "0000"
+    # remove optical drives
     "ide1:0.deviceType"     = "atapi-cdrom"
     "ide1:0.fileName"       = "cdrom0"
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "FALSE"
-    # remove optical drives
   }
 }
 
 build {
-#  name = "full"
+  #  name = "full"
   sources = ["source.vmware-iso.ubuntu"]
-    provisioner "file" {
+  provisioner "file" {
     sources     = ["files/config.json"]
     destination = "~/"
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "CONFIG_VM=1"
+    ]
     scripts = [
-    "scripts/configure.sh"
+      "scripts/configure.sh"
     ]
   }
 }

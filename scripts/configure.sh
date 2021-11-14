@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
-IFS=$'\n\t'
 shopt -s nullglob nocaseglob
+IFS=$'\n\t'
 
 # modern bash version check
 ! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
@@ -9,6 +8,72 @@ shopt -s nullglob nocaseglob
 # path to self and parent dir
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
+
+# VARS
+if [[ -v $CONFIG_VM ]];then
+  echo "set $CONFIG_VM"
+else
+  echo "unset CONFIG_VM"
+  CONFIG_VM=0
+fi
+
+if [[ -v $CONFIG_CONTAINER ]];then
+  echo "set $CONFIG_CONTAINER"
+else
+  echo "unset CONFIG_CONTAINER"
+  CONFIG_CONTAINER=0
+fi
+
+if [[ -v $CONFIG_GOLANG ]];then
+  echo "set $CONFIG_GOLANG"
+else
+  echo "unset CONFIG_GOLANG"
+  CONFIG_GOLANG=0
+fi
+
+if [[ -v $CONFIG_HASHICORP ]];then
+  echo "set $CONFIG_HASHICORP"
+else
+  echo "unset CONFIG_HASHICORP"
+  CONFIG_HASHICORP=0
+fi
+
+if [[ -v $CONFIG_PROMPT ]];then
+  echo "set $CONFIG_PROMPT"
+else
+  echo "unset CONFIG_PROMPT"
+  CONFIG_PROMPT=0
+fi
+
+# need to set bash strict mode after slurping up vars
+set -euo pipefail
+
+# print out usage
+usage() {
+  cat <<EOF
+USAGE: ./configure.sh -v
+OPTIONS:
+   -v    vm
+   -c    container
+   -g    golang
+   -t    hashicorp
+   -p    prompt
+   -h    Help
+EOF
+  exit
+}
+
+# process options and arguments
+while getopts "vcgthp" OPTION; do
+  case $OPTION in
+  h) usage && exit 1 ;;
+  p) INPUT_PATH=$OPTARG ;;
+  o) OUTPUT_PATH=$OPTARG ;;
+  t) THING_1=0 ;;
+  d) HD_ARCHIVE=0 ;;
+  b) BADPEG=0 ;;
+  esac
+done
 
 # configurables
 GO_VERSION="1.17.2"
@@ -18,105 +83,112 @@ elif [[ $(uname -m) == "aarch64" ]]; then
   LINUX_ARCH="arm64"
 fi
 
-# install open-vm-tools as needed
-if sudo dmidecode | grep "Vendor: VMware"; then
-  sudo apt update
-  sudo apt install open-vm-tools
-  # Report the version of tools installed
-  if [ -e /usr/bin/vmware-toolbox-cmd ]; then
-    echo "VMware tools version"
-    /usr/bin/vmware-toolbox-cmd --version
-  else
-    echo "VMware Tools Failed to install..."
-    exit 1
+vmware_tools() {
+  # install open-vm-tools as needed
+  if sudo dmidecode | grep "Vendor: VMware"; then
+    sudo apt update
+    sudo apt install open-vm-tools
+    # Report the version of tools installed
+    if [ -e /usr/bin/vmware-toolbox-cmd ]; then
+      echo "VMware tools version"
+      /usr/bin/vmware-toolbox-cmd --version
+    else
+      echo "VMware Tools Failed to install..."
+      exit 1
+    fi
   fi
-fi
+}
 
-# wait for apt to be ready
-while sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock >/dev/null 2>&1; do
-  echo "waiting for apt to be ready"
-  sleep 1
-done
+remove_snaps() {
+  # remove snaps
+  if [[ -f /bin/running-in-container ]]; then
+    echo "running in container"
+  else
+    sudo snap remove lxd
+    sudo systemctl stop snapd
+    sudo apt -y purge snapd
+    rm -rf ~/snap
+    sudo rm -rf /snap
+    sudo rm -rf /var/snap
+    sudo rm -rf /var/lib/snapd
+  fi
+}
 
-# remove snaps
-if [[ -f /bin/running-in-container ]]; then
-  echo "running in container"
-else
-  sudo snap remove lxd
-  sudo systemctl stop snapd
-  sudo apt -y purge snapd
-  rm -rf ~/snap
-  sudo rm -rf /snap
-  sudo rm -rf /var/snap
-  sudo rm -rf /var/lib/snapd
-fi
+common_packages() {
 
-# load the latest updates & packages
-export DEBIAN_FRONTEND=noninteractive
-sudo apt update
-sudo apt -y dist-upgrade
-sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree acl apt-transport-https
-sudo purge-old-kernels -y
-sudo apt autoremove --purge
+  # load the latest updates & packages
+  export DEBIAN_FRONTEND=noninteractive
+  sudo apt update
+  sudo apt -y dist-upgrade
+  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree acl apt-transport-https
+  sudo purge-old-kernels -y
+  sudo apt autoremove --purge
 
-# Disable IPv6 Privacy addresses
-sudo sed -i 's/net.ipv6.conf.all.use_tempaddr = 2/net.ipv6.conf.all.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
-sudo sed -i 's/net.ipv6.conf.default.use_tempaddr = 2/net.ipv6.conf.default.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
+}
 
-# fixup sshd_conf
-sudo sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
+vm_config() {
 
-# set timezone to UTC
-if [[ -e /usr/bin/timedatectl ]]; then
-  sudo timedatectl set-timezone US/Pacific
-fi
+  # Disable IPv6 Privacy addresses
+  sudo sed -i 's/net.ipv6.conf.all.use_tempaddr = 2/net.ipv6.conf.all.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
+  sudo sed -i 's/net.ipv6.conf.default.use_tempaddr = 2/net.ipv6.conf.default.use_tempaddr = 0/g' /etc/sysctl.d/10-ipv6-privacy.conf
 
-# create code dir
-if ! [[ -d ~/code ]]; then
-  mkdir ~/code
-fi
+  # fixup sshd_conf
+  sudo sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
 
-# install golang
-wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
-sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
-PATH=$PATH:/usr/local/go/bin
-go version
-rm go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
-export GOPATH=${HOME}/code/go
+  # set timezone to UTC
+  if [[ -e /usr/bin/timedatectl ]]; then
+    sudo timedatectl set-timezone US/Pacific
+  fi
 
-# install packages using go get
-go install github.com/minio/mc@latest
-go install github.com/muesli/duf@latest
-go install github.com/junegunn/fzf@latest
-wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash
-wget -q -O ${HOME}/.fzf_key-bindings.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.bash
+  # create code dir
+  if ! [[ -d ~/code ]]; then
+    mkdir ~/code
+  fi
+  
+  # remove cloud-init
+  sudo apt -y remove cloud-init
 
-# python packages
-python -m pip install powerline-status
+}
 
-# install source code pro font
-wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
-if ! [[ -d ${HOME}/.fonts ]]; then
-  mkdir ${HOME}/.fonts
-fi
+golang() {
+  # install golang
+  wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
+  sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
+  PATH=$PATH:/usr/local/go/bin
+  go version
+  rm go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
+  export GOPATH=${HOME}/code/go
 
-unzip -o -d ${HOME}/.fonts ${HOME}/OTF-source-code-pro*.zip
-rm ${HOME}/OTF-source-code-pro*.zip
+  # install packages using go get
+  go install github.com/minio/mc@latest
+  go install github.com/muesli/duf@latest
+  go install github.com/junegunn/fzf@latest
+  wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash
+  wget -q -O ${HOME}/.fzf_key-bindings.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.bash
 
-# add powerline config file
-if ! [[ -d ~/.config/powerline ]]; then
-  mkdir -p ~/.config/powerline
-  mv config.json ~/.config/powerline/
-fi
+}
 
-# k8s
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt update
-sudo apt install -y kubectl
+prompt() {
+  # python packages
+  python -m pip install powerline-status
 
-# setup profile
-cat <<'PROFILE' >${HOME}/.bash_profile
+  # install source code pro font
+  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
+  if ! [[ -d ${HOME}/.fonts ]]; then
+    mkdir ${HOME}/.fonts
+  fi
+
+  unzip -o -d ${HOME}/.fonts ${HOME}/OTF-source-code-pro*.zip
+  rm ${HOME}/OTF-source-code-pro*.zip
+
+  # add powerline config file
+  if ! [[ -d ~/.config/powerline ]]; then
+    mkdir -p ~/.config/powerline
+    mv config.json ~/.config/powerline/
+  fi
+
+  # setup profile
+  cat <<'PROFILE' >${HOME}/.bash_profile
 export GOPATH=${HOME}/code/go
 export PATH=$PATH:${HOME}/code/go/bin:${HOME}/.local/bin/
 export TERM=xterm-256color
@@ -154,20 +226,50 @@ fi
 
 PROFILE
 
-# remove motd
-touch $HOME/.hushlogin
+  # remove motd
+  touch $HOME/.hushlogin
 
-# hashicorp
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt update
-sudo apt install packer terraform vault
-vault version
-packer version
-terraform version
+}
 
-# clear logs
-sudo logrotate -f /etc/logrotate.conf
+hashicorp() {
+  # k8s
+  sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  sudo apt update
+  sudo apt install -y kubectl
 
-# Clear bash history
->~/.bash_history
+  # hashicorp
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+  sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  sudo apt update
+  sudo apt install packer terraform vault
+  vault version
+  packer version
+  terraform version
+}
+
+cleanup() {
+  # clear logs
+  sudo logrotate -f /etc/logrotate.conf
+
+  # Clear bash history
+  >~/.bash_history
+}
+
+if [[ CONFIG_VM=1 ]];then
+  vmware_tools
+  vm_config
+  common_packages
+  remove_snaps
+  golang
+  hashicorp
+  prompt
+  cleanup
+fi
+
+if [[ CONFIG_CONTAINER=1 ]];then
+  common_packages
+  golang
+  hashicorp
+  prompt
+fi
