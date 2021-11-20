@@ -10,11 +10,26 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
+
+
 # VARS
 THING_1=1
 # smart defaults.. 
 # macos + arch = vmw host arch
 # linux + arch = docker host arch
+ARCH="amd64"
+if [[ $(uname -m) == "x86_64" ]]; then
+  ARCH="amd64"
+elif [[ $(uname -m) == "arm64" ]]; then
+  ARCH="arm64"
+elif [[ $(uname -m) == "aarch64" ]]; then
+  ARCH="arm64"
+fi
+
+packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH .
+
+exit 0
+
 
 
 
@@ -56,9 +71,6 @@ fi
 
 
 #!/bin/bash
-packer build -force -only vmware-iso.ubuntu ubuntu.pkr.hcl
-
-exit 0
 
 build pkrvariablesfilesname.pkrvars.hcl ?
 build vmw arm
