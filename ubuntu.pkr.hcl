@@ -28,6 +28,11 @@ variable "cpu_count" {
   default = "6"
 }
 
+variable "fusion_app_path" {
+  type    = string
+  default = "/Applications/VMware Fusion.app"
+}
+
 variable "ram_gb" {
   type    = string
   default = "16"
@@ -47,6 +52,7 @@ source "vmware-iso" "ubuntu" {
   display_name = "{{build_name}} ${var.os_version}"
   vm_name      = "{{build_name}}_${var.os_version}"
   vmdk_name    = "{{build_name}}_${var.os_version}"
+  fusion_app_path = var.fusion_app_path
   http_content = {
     "/meta-data" = ""
     "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key })
