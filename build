@@ -16,20 +16,20 @@ THING_1=1
 # macos + arch = vmw host arch
 # linux + arch = docker host arch
 ARCH="amd64"
-#if [[ $(uname -m) == "x86_64" ]]; then
-#  ARCH="amd64"
-#elif [[ $(uname -m) == "arm64" ]]; then
-#  ARCH="arm64"
-#elif [[ $(uname -m) == "aarch64" ]]; then
-#  ARCH="arm64"
-#fi
+if [[ $(uname -m) == "x86_64" ]]; then
+  ARCH="amd64"
+elif [[ $(uname -m) == "arm64" ]]; then
+  ARCH="arm64"
+elif [[ $(uname -m) == "aarch64" ]]; then
+  ARCH="arm64"
+fi
 
-UNAMEM=$(uname -m)
-case UNAMEM in
-x86_64) ARCH="amd64" ;;
-arm64) ARCH="arm64" ;;
-aarch64) ARCH="arm64" ;;
-esac
+#UNAMEM=$(uname -m)
+#case UNAMEM in
+#x86_64) ARCH="amd64" ;;
+#arm64) ARCH="arm64" ;;
+#aarch64) ARCH="arm64" ;;
+#esac
 
 echo packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH .
 
