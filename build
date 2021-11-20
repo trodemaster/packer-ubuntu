@@ -10,28 +10,30 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
-
-
 # VARS
 THING_1=1
-# smart defaults.. 
+# smart defaults..
 # macos + arch = vmw host arch
 # linux + arch = docker host arch
 ARCH="amd64"
-if [[ $(uname -m) == "x86_64" ]]; then
-  ARCH="amd64"
-elif [[ $(uname -m) == "arm64" ]]; then
-  ARCH="arm64"
-elif [[ $(uname -m) == "aarch64" ]]; then
-  ARCH="arm64"
-fi
+#if [[ $(uname -m) == "x86_64" ]]; then
+#  ARCH="amd64"
+#elif [[ $(uname -m) == "arm64" ]]; then
+#  ARCH="arm64"
+#elif [[ $(uname -m) == "aarch64" ]]; then
+#  ARCH="arm64"
+#fi
 
-packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH .
+UNAMEM=$(uname -m)
+case UNAMEM in
+x86_64) ARCH="amd64" ;;
+arm64) ARCH="arm64" ;;
+aarch64) ARCH="arm64" ;;
+esac
+
+echo packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH .
 
 exit 0
-
-
-
 
 # print out usage
 usage() {
@@ -60,7 +62,6 @@ while getopts "tbp:o:adh" OPTION; do
   esac
 done
 
-
 thing_1() {
   echo "thing 1"
 }
@@ -68,7 +69,6 @@ thing_1() {
 if [[ $THING_1 == 0 ]]; then
   thing_1
 fi
-
 
 #!/bin/bash
 
@@ -83,6 +83,5 @@ build azure amd64
 build azure arm
 build aws amd64
 build aws arm
-
 
 exit 0
