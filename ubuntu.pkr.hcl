@@ -102,10 +102,11 @@ source "vmware-iso" "ubuntu" {
   vmx_data_post = {
     "bios.bootDelay" = "0000"
     # remove optical drives
-    "ide1:0.deviceType"     = "atapi-cdrom"
-    "ide1:0.fileName"       = "cdrom0"
-    "ide1:0.present"        = "TRUE"
-    "ide1:0.startConnected" = "FALSE"
+    "sata0:0.autodetect"     = "TRUE"
+    "sata0:0.deviceType"     = "cdrom-raw"
+    "sata0:0.fileName"       = "auto detect"
+    "sata0:0.startConnected" = "FALSE"
+    "sata0:0.present"        = "TRUE"
   }
 }
 

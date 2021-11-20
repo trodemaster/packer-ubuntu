@@ -11,3 +11,55 @@ build vmw amd64
 build qemu amd64
 build docker amd64
 
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+shopt -s nullglob nocaseglob
+
+# modern bash version check
+! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
+
+# path to self and parent dir
+SCRIPT=$(realpath $0)
+SCRIPTPATH=$(dirname $SCRIPT)
+
+# VARS
+THING_1=1
+
+# print out usage
+usage() {
+  cat <<EOF
+USAGE: ./encode -p /Volumes/fast/timelapseSource -o /Volumes/fast/timelapseArchive.mp4
+OPTIONS:
+   -p    Path to source images
+   -b    Search for bad jpeg files and delete them without warning
+   -o    Path to output file including extension
+   -a    Encode with archive format
+   -d    Encode with HD 1080p 60fps
+   -h    Help
+EOF
+  exit
+}
+
+# process options and arguments
+while getopts "tbp:o:adh" OPTION; do
+  case $OPTION in
+  h) usage && exit 1 ;;
+  p) INPUT_PATH=$OPTARG ;;
+  o) OUTPUT_PATH=$OPTARG ;;
+  t) THING_1=0 ;;
+  d) HD_ARCHIVE=0 ;;
+  b) BADPEG=0 ;;
+  esac
+done
+
+
+thing_1() {
+  echo "thing 1"
+}
+
+if [[ $THING_1 == 0 ]]; then
+  thing_1
+fi
+
+exit 0
