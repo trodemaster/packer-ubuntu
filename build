@@ -1,16 +1,3 @@
-#!/bin/bash
-packer build -force -only vmware-iso.ubuntu ubuntu.pkr.hcl
-
-exit 0
-
-build pkrvariablesfilesname.pkrvars.hcl ?
-build vmw arm
-build qemu arm
-build docker arm
-build vmw amd64
-build qemu amd64
-build docker amd64
-
 #!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
@@ -25,17 +12,22 @@ SCRIPTPATH=$(dirname $SCRIPT)
 
 # VARS
 THING_1=1
+# smart defaults.. 
+# macos + arch = vmw host arch
+# linux + arch = docker host arch
+
+
 
 # print out usage
 usage() {
   cat <<EOF
-USAGE: ./encode -p /Volumes/fast/timelapseSource -o /Volumes/fast/timelapseArchive.mp4
+USAGE: ./build -v
 OPTIONS:
-   -p    Path to source images
-   -b    Search for bad jpeg files and delete them without warning
-   -o    Path to output file including extension
-   -a    Encode with archive format
-   -d    Encode with HD 1080p 60fps
+   -v    vmw
+   -d    docker
+   -q    qemu
+   -z    azure
+   -a    aws
    -h    Help
 EOF
   exit
@@ -61,5 +53,24 @@ thing_1() {
 if [[ $THING_1 == 0 ]]; then
   thing_1
 fi
+
+
+#!/bin/bash
+packer build -force -only vmware-iso.ubuntu ubuntu.pkr.hcl
+
+exit 0
+
+build pkrvariablesfilesname.pkrvars.hcl ?
+build vmw arm
+build qemu arm
+build docker arm
+build vmw amd64
+build qemu amd64
+build docker amd64
+build azure amd64
+build azure arm
+build aws amd64
+build aws arm
+
 
 exit 0
