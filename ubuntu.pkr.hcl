@@ -165,7 +165,7 @@ source "vmware-iso" "ubuntu_arm64" {
   version           = "19"
   vmx_data = {
     "bios.bootDelay"                 = "4000"
-    "ethernet0.virtualdev"           = "vmxnet3"
+    "ethernet0.virtualdev"           = "e1000e"
     firmware                         = "efi"
     "powerType.powerOff"             = "hard"
     "powerType.powerOn"              = "hard"
@@ -180,9 +180,9 @@ source "vmware-iso" "ubuntu_arm64" {
     "time.synchronize.tools.startup" = "1"
     "tools.upgrade.policy"           = "manual"
     "uefi.secureBoot.enabled"        = "FALSE"
-    "vhv.enable"                     = "TRUE"
+    "vhv.enable"                     = "FALSE"
     "virtualhw.productcompatibility" = "hosted"
-    "vmx.allowNested"                = "TRUE"
+    "vmx.allowNested"                = "FALSE"
     "vmx.buildType"                  = "release"
     "usb_xhci:4.deviceType" = "hid"
     "usb_xhci:4.parent" = "-1"
@@ -200,6 +200,7 @@ source "vmware-iso" "ubuntu_arm64" {
     "usb_xhci:7.speed" = "4"
     "usb_xhci.pciSlotNumber" = "192"
     "usb_xhci.present" = "TRUE"
+    "ehci.present" = "FALSE"
   }
   vmx_data_post = {
     "bios.bootDelay" = "0000"

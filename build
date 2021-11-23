@@ -32,8 +32,9 @@ fi
 #arm64) ARCH="arm64" ;;
 #aarch64) ARCH="arm64" ;;
 #esac
-
-PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu_$ARCH -var cpu_arch=$ARCH .
+pkill vmx || true
+pkill Fusion || true
+PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu_$ARCH -var cpu_arch=$ARCH -on-error abort .
 
 exit 0
 
