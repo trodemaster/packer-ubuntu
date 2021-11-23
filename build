@@ -18,11 +18,13 @@ THING_1=1
 ARCH="amd64"
 if [[ $(uname -m) == "x86_64" ]]; then
   ARCH="amd64"
-elif [[ $(uname -m) == "arm64" ]]; then
+  GUESTOS="ubuntu-64"
+elif [[ $(uname -m) =~ (arm64|aarch64) ]]; then
   ARCH="arm64"
-elif [[ $(uname -m) == "aarch64" ]]; then
-  ARCH="arm64"
+  GUESTOS="arm-ubuntu-64"
 fi
+
+
 
 #UNAMEM=$(uname -m)
 #case UNAMEM in
@@ -31,7 +33,7 @@ fi
 #aarch64) ARCH="arm64" ;;
 #esac
 
-echo packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH .
+PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu_$ARCH -var cpu_arch=$ARCH .
 
 exit 0
 

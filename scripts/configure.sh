@@ -87,7 +87,7 @@ vmware_tools() {
   # install open-vm-tools as needed
   if sudo dmidecode | grep "Vendor: VMware"; then
     sudo apt update
-    sudo apt install open-vm-tools
+    sudo apt -y install open-vm-tools
     # Report the version of tools installed
     if [ -e /usr/bin/vmware-toolbox-cmd ]; then
       echo "VMware tools version"
