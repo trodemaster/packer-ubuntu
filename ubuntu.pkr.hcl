@@ -55,7 +55,7 @@ variable "disk_gb" {
 
 variable "ssh_key" {
   type    = string
-  default = "nachos3"
+  default = ""
 }
 
 
@@ -140,8 +140,8 @@ source "vmware-iso" "ubuntu_arm64" {
   boot_command = [
     "<enter>",
     "c",
-    "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/initrd <enter>", "boot<enter>"
+    "linux /casper/hwe-vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
+    "initrd /casper/hwe-initrd <enter>", "boot<enter>"
   ]
   boot_key_interval = "4ms"
   boot_wait         = "4s"

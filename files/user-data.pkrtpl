@@ -20,9 +20,11 @@ autoinstall:
     install-server: yes
     allow-pw: true
     authorized-keys: ["${ssh_key}"]
+  debconf_selections:
+    d-i base-installer/kernel/image string linux-image-virtual-hwe-20.04-edge
   packages:
     - efibootmgr
-    - linux-virtual-hwe-20.04
+#    - linux-image-virtual-hwe-20.04-edge
   user-data:
     disable_root: false
   late-commands:
