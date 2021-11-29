@@ -12,19 +12,19 @@ autoinstall:
     layout:
       name: "direct"  
   identity:
-    hostname: ubuntu
+    hostname: "${hostname}"
     # openssl passwd -6 <password>
-    password: "$6$cBeg34i2TUc39pNU$k04L2O.t222tKmw7/Kj2UnvQxR29Ag4SNoPywH3/aSQCAor78XpcYDygsuTHwW7Sm82/vHnJjCz5aA.WL5ym7/"
-    username: ubuntu
+    password: "${user_password_hash}"
+    username: "${user_username}"
   ssh:
     install-server: yes
     allow-pw: true
     authorized-keys: ["${ssh_key}"]
-  debconf_selections:
-    d-i base-installer/kernel/image string linux-image-virtual-hwe-20.04-edge
+#  debconf_selections:
+#    d-i base-installer/kernel/image string linux-image-virtual-hwe-20.04-edge
   packages:
     - efibootmgr
-#    - linux-image-virtual-hwe-20.04-edge
+    - linux-image-virtual-hwe-20.04-edge
   user-data:
     disable_root: false
   late-commands:

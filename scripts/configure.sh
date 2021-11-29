@@ -242,7 +242,9 @@ hashicorp() {
   curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
   sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
   sudo apt update
-  sudo apt install packer terraform vault || true
+  sudo apt install -y packer || true
+  sudo apt install -y terraform || true
+  sudo apt install -y vault || true
   vault version || true
   packer version || true
   terraform version || true

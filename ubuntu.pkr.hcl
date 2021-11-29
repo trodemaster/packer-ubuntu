@@ -1,9 +1,19 @@
 variable "user_password" {
   type    = string
-  default = "powder!"
+  default = "ubuntu"
+}
+
+variable "user_password_hash" {
+  type    = string
+  default = "$6$MfDK0nZgfqn7r48w$34F7qOuYtOyZTSb20iFvhdmSYI/GnExPcY.dWjl.ROIMjkz1/eh4KpbvlA8fBkFVEFHMFqJJAVB3fnnXvmUtv/"
 }
 
 variable "user_username" {
+  type    = string
+  default = "ubuntu"
+}
+
+variable "hostname" {
   type    = string
   default = "ubuntu"
 }
@@ -66,8 +76,12 @@ source "vmware-iso" "ubuntu_amd64" {
   fusion_app_path = var.fusion_app_path
   http_content = {
     "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key })
-  }
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { 
+      ssh_key = var.ssh_key
+      hostname = var.hostname 
+      user_username = var.user_username 
+      user_password_hash = var.user_password_hash 
+      })  }
   boot_command = [
     "<enter>",
     "c",
@@ -135,7 +149,12 @@ source "vmware-iso" "ubuntu_arm64" {
   fusion_app_path = var.fusion_app_path
   http_content = {
     "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { ssh_key = var.ssh_key })
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { 
+      ssh_key = var.ssh_key
+      hostname = var.hostname 
+      user_username = var.user_username 
+      user_password_hash = var.user_password_hash 
+      })
   }
   boot_command = [
     "<enter>",
