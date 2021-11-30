@@ -120,7 +120,7 @@ common_packages() {
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon tree acl apt-transport-https
+  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
 
