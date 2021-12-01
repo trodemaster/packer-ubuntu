@@ -24,7 +24,7 @@ variable "cpu_arch" {
 }
 
 variable "uefi_secureBoot" {
-  type = string
+  type    = string
   default = "TRUE"
 }
 
@@ -39,7 +39,7 @@ variable "os_codename" {
 }
 
 variable "guest_os_type" {
-  type = string
+  type    = string
   default = "ubuntu-64"
 }
 
@@ -70,18 +70,18 @@ variable "ssh_key" {
 
 
 source "vmware-iso" "ubuntu_amd64" {
-  display_name = "{{build_name}} ${var.os_version}"
-  vm_name      = "{{build_name}}_${var.os_version}"
-  vmdk_name    = "{{build_name}}_${var.os_version}"
+  display_name    = "{{build_name}} ${var.os_version}"
+  vm_name         = "{{build_name}}_${var.os_version}"
+  vmdk_name       = "{{build_name}}_${var.os_version}"
   fusion_app_path = var.fusion_app_path
   http_content = {
     "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { 
-      ssh_key = var.ssh_key
-      hostname = var.hostname 
-      user_username = var.user_username 
-      user_password_hash = var.user_password_hash 
-      })  }
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", {
+      ssh_key            = var.ssh_key
+      hostname           = var.hostname
+      user_username      = var.user_username
+      user_password_hash = var.user_password_hash
+  }) }
   boot_command = [
     "<enter>",
     "c",
@@ -143,18 +143,18 @@ source "vmware-iso" "ubuntu_amd64" {
 
 # arm64 source
 source "vmware-iso" "ubuntu_arm64" {
-  display_name = "{{build_name}} ${var.os_version}"
-  vm_name      = "{{build_name}}_${var.os_version}"
-  vmdk_name    = "{{build_name}}_${var.os_version}"
+  display_name    = "{{build_name}} ${var.os_version}"
+  vm_name         = "{{build_name}}_${var.os_version}"
+  vmdk_name       = "{{build_name}}_${var.os_version}"
   fusion_app_path = var.fusion_app_path
   http_content = {
     "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", { 
-      ssh_key = var.ssh_key
-      hostname = var.hostname 
-      user_username = var.user_username 
-      user_password_hash = var.user_password_hash 
-      })
+    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", {
+      ssh_key            = var.ssh_key
+      hostname           = var.hostname
+      user_username      = var.user_username
+      user_password_hash = var.user_password_hash
+    })
   }
   boot_command = [
     "<enter>",
@@ -203,23 +203,23 @@ source "vmware-iso" "ubuntu_arm64" {
     "virtualhw.productcompatibility" = "hosted"
     "vmx.allowNested"                = "FALSE"
     "vmx.buildType"                  = "release"
-    "usb_xhci:4.deviceType" = "hid"
-    "usb_xhci:4.parent" = "-1"
-    "usb_xhci:4.port" = "4"
-    "usb_xhci:4.present" = "TRUE"
-    "usb_xhci:6.deviceType" = "hub"
-    "usb_xhci:6.parent" = "-1"
-    "usb_xhci:6.port" = "6"
-    "usb_xhci:6.present" = "TRUE"
-    "usb_xhci:6.speed" = "2"
-    "usb_xhci:7.deviceType" = "hub"
-    "usb_xhci:7.parent" = "-1"
-    "usb_xhci:7.port" = "7"
-    "usb_xhci:7.present" = "TRUE"
-    "usb_xhci:7.speed" = "4"
-    "usb_xhci.pciSlotNumber" = "192"
-    "usb_xhci.present" = "TRUE"
-    "ehci.present" = "FALSE"
+    "usb_xhci:4.deviceType"          = "hid"
+    "usb_xhci:4.parent"              = "-1"
+    "usb_xhci:4.port"                = "4"
+    "usb_xhci:4.present"             = "TRUE"
+    "usb_xhci:6.deviceType"          = "hub"
+    "usb_xhci:6.parent"              = "-1"
+    "usb_xhci:6.port"                = "6"
+    "usb_xhci:6.present"             = "TRUE"
+    "usb_xhci:6.speed"               = "2"
+    "usb_xhci:7.deviceType"          = "hub"
+    "usb_xhci:7.parent"              = "-1"
+    "usb_xhci:7.port"                = "7"
+    "usb_xhci:7.present"             = "TRUE"
+    "usb_xhci:7.speed"               = "4"
+    "usb_xhci.pciSlotNumber"         = "192"
+    "usb_xhci.present"               = "TRUE"
+    "ehci.present"                   = "FALSE"
   }
   vmx_data_post = {
     "bios.bootDelay" = "0000"
