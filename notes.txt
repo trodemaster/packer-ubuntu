@@ -2,6 +2,7 @@ boot order
 device 3
 device 2
 
+https://github.com/Yelp/dumb-init
 
 qemu-system-aarch64 -M virt -device virtio-blk-pci,help
 virtio-blk-pci options:
