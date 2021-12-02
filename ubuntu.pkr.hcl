@@ -80,7 +80,8 @@ source "vmware-iso" "ubuntu" {
       hostname           = var.hostname
       user_username      = var.user_username
       user_password_hash = var.user_password_hash
-  }) }
+    })
+  }
   boot_command = [
     "<wait>",
     "<enter>",
@@ -88,8 +89,8 @@ source "vmware-iso" "ubuntu" {
     "linux /casper/hwe-vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/hwe-initrd <enter>", "boot<enter>"
   ]
-  boot_key_interval = "4ms"
-  boot_wait         = "4s"
+  boot_key_interval = "2ms"
+  boot_wait         = "1s"
   cpus              = var.cpu_count
   cores             = var.cpu_count
   memory            = var.ram_gb * 1024
@@ -109,7 +110,7 @@ source "vmware-iso" "ubuntu" {
   ssh_username      = "${var.user_username}"
   version           = "19"
   vmx_data = {
-    "bios.bootDelay"                 = "3500"
+    "bios.bootDelay"                 = "0500"
     "ethernet0.virtualdev"           = "e1000e"
     firmware                         = "efi"
     "powerType.powerOff"             = "hard"

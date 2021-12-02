@@ -34,7 +34,7 @@ fi
 #esac
 pkill vmx || true
 pkill Fusion || true
-PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -on-error abort .
+PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var-file=$ARCH.pkrvars.hcl -on-error abort .
 
 exit 0
 
