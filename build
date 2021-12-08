@@ -33,7 +33,6 @@ elif [[ $(uname) =~ "Darwin" ]];then
   PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
 fi
 
-
 exit 0
 
 # print out usage
