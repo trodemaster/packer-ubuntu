@@ -105,9 +105,9 @@ source "vmware-iso" "ubuntu" {
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
-  ssh_password      = "${var.user_password}"
+  ssh_password      = var.user_password
   ssh_timeout       = "10m"
-  ssh_username      = "${var.user_username}"
+  ssh_username      = var.user_username
   version           = "19"
   vmx_data = {
     "bios.bootDelay"                 = "0500"
@@ -159,6 +159,74 @@ source "vmware-iso" "ubuntu" {
   }
 }
 
+source "docker" "ubuntu" {
+  image = "ubuntu"
+  #  export_path = "ubuntu.tar"
+  commit = true
+  changes = [
+    "ENTRYPOINT /usr/bin/sleep infinity",
+    "ENV TERM xterm-256color",
+    "ENV TZ America/Los_Angeles",
+    "ENV DEBIAN_FRONTEND noninteractive"
+  ]
+}
+
+build {
+  name    = "remote"
+  sources = ["source.docker.ubuntu"]
+  provisioner "file" {
+    sources     = ["files/config.json"]
+    destination = "/tmp/"
+  }
+
+  provisioner "shell" {
+    scripts = [
+      "scripts/configure.sh"
+    ]
+  }
+
+  post-processors {
+    post-processor "docker-tag" {
+      repository = join("", [var.login_server, "/devctr"])
+      tags       = [var.docker_image_version]
+    }
+    post-processor "docker-push" {
+      login          = true
+      login_server   = var.login_server
+      login_username = var.login_username
+      login_password = var.login_password
+    }
+  }
+}
+
+build {
+  name    = "local"
+  sources = ["source.docker.ubuntu"]
+
+  provisioner "file" {
+    sources     = ["files/config.json"]
+    destination = "/tmp/"
+  }
+
+  provisioner "shell" {
+    environment_vars = [
+      "CONFIG_CONTAINER=1"
+    ]
+    scripts = [
+      "scripts/configure.sh"
+    ]
+  }
+
+    post-processor "docker-tag" {
+      repository = "local/devctr"
+      tags       = [ "latest" ]
+    }
+#  post-processor "docker-import" {
+#    repository = "local/devctr"
+#    tag        = "latest"
+#  }
+
+}
 
 
 

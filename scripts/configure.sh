@@ -10,39 +10,40 @@ SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
 # VARS
-if [[ -v $CONFIG_VM ]];then
+if ${CONFIG_VM+x};then
   echo "set $CONFIG_VM"
 else
   echo "unset CONFIG_VM"
   CONFIG_VM=0
 fi
 
-if [[ -v $CONFIG_CONTAINER ]];then
-  echo "set $CONFIG_CONTAINER"
-else
+echo "config container env var $CONFIG_CONTAINER"
+if [[ -z $CONFIG_CONTAINER ]];then
   echo "unset CONFIG_CONTAINER"
   CONFIG_CONTAINER=0
+else
+  echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
 fi
 
-if [[ -v $CONFIG_GOLANG ]];then
-  echo "set $CONFIG_GOLANG"
-else
+if [[ -z $CONFIG_GOLANG ]];then
   echo "unset CONFIG_GOLANG"
   CONFIG_GOLANG=0
+else
+  echo "CONFIG_GOLANG set to $CONFIG_GOLANG from env var"
 fi
 
-if [[ -v $CONFIG_HASHICORP ]];then
-  echo "set $CONFIG_HASHICORP"
-else
+if [[ -z $CONFIG_HASHICORP ]];then
   echo "unset CONFIG_HASHICORP"
   CONFIG_HASHICORP=0
+else
+  echo "CONFIG_HASHICORP set to $CONFIG_HASHICORP from env var"
 fi
 
-if [[ -v $CONFIG_PROMPT ]];then
-  echo "set $CONFIG_PROMPT"
-else
+if [[ -z $CONFIG_PROMPT ]];then
   echo "unset CONFIG_PROMPT"
   CONFIG_PROMPT=0
+else
+  echo "CONFIG_PROMPT set to $CONFIG_PROMPT from env var"
 fi
 
 # need to set bash strict mode after slurping up vars
@@ -114,16 +115,24 @@ remove_snaps() {
   fi
 }
 
-common_packages() {
+vm_packages() {
 
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 docker mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https
+  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
 
+}
+
+container_packages() {
+  # load the latest updates & packages
+  export DEBIAN_FRONTEND=noninteractive
+  apt update
+  apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https
+  apt autoremove --purge
 }
 
 vm_config() {
@@ -258,20 +267,24 @@ cleanup() {
   >~/.bash_history
 }
 
-if [[ CONFIG_VM=1 ]];then
-  vmware_tools
-  vm_config
-  common_packages
-  remove_snaps
-  golang
-  hashicorp
-  prompt
-  cleanup
-fi
+#echo "config vm $CONFIG_VM"
+#if [[ $CONFIG_VM == "1" ]];then
+#echo "doing config vm"
+#  vmware_tools
+#  vm_config
+#  vm_packages
+#  remove_snaps
+#  golang
+#  hashicorp
+#  prompt
+#  cleanup
+#fi
 
-if [[ CONFIG_CONTAINER=1 ]];then
-  common_packages
-  golang
-  hashicorp
-  prompt
+echo "config container $CONFIG_CONTAINER"
+if [[ $CONFIG_CONTAINER =~ "1" ]];then
+echo "doing container build"
+  container_packages
+#  golang
+#  hashicorp
+#  prompt
 fi

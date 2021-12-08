@@ -32,9 +32,14 @@ fi
 #arm64) ARCH="arm64" ;;
 #aarch64) ARCH="arm64" ;;
 #esac
-pkill vmx || true
-pkill Fusion || true
-PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var-file=$ARCH.pkrvars.hcl -on-error abort .
+if [[ $(uname) =~ "Linux" ]];then
+  packer build -force -only local.docker.ubuntu -var cpu_arch=$ARCH .
+elif [[ $(uname) =~ "Darwin" ]];then
+  pkill vmx || true
+  pkill Fusion || true
+  PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var-file=$ARCH.pkrvars.hcl -on-error abort .
+fi
+
 
 exit 0
 
