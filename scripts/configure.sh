@@ -131,8 +131,18 @@ container_packages() {
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
   apt update
-  apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https
+  apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https
   apt autoremove --purge
+}
+
+container_sshd() {
+  mkdir -p /usr/local/bin
+  mv /tmp/sshd /usr/local/bin/sshd
+  chmod +x /usr/local/bin/sshd
+  cat <<SSHDCONFIG >/etc/ssh/sshd_config.d/devcntr
+PermitRootLogin prohibit-password
+Port 443
+SSHDCONFIG
 }
 
 vm_config() {
@@ -284,6 +294,7 @@ echo "config container $CONFIG_CONTAINER"
 if [[ $CONFIG_CONTAINER =~ "1" ]];then
 echo "doing container build"
   container_packages
+  container_sshd
 #  golang
 #  hashicorp
 #  prompt

@@ -18,6 +18,11 @@ variable "hostname" {
   default = "ubuntu"
 }
 
+variable "docker_imagename" {
+  type    = string
+  default = "devctnr"
+}
+
 variable "cpu_arch" {
   type    = string
   default = "amd64"
@@ -164,10 +169,12 @@ source "docker" "ubuntu" {
   #  export_path = "ubuntu.tar"
   commit = true
   changes = [
-    "ENTRYPOINT /usr/bin/sleep infinity",
+    "ENTRYPOINT [\"/usr/bin/dumb-init\", \"--\"]",
+    "CMD /usr/local/bin/sshd && exec /usr/sbin/sshd",
     "ENV TERM xterm-256color",
     "ENV TZ America/Los_Angeles",
-    "ENV DEBIAN_FRONTEND noninteractive"
+    "ENV DEBIAN_FRONTEND noninteractive",
+    "EXPOSE 443 22"
   ]
 }
 
@@ -175,7 +182,7 @@ build {
   name    = "remote"
   sources = ["source.docker.ubuntu"]
   provisioner "file" {
-    sources     = ["files/config.json"]
+    sources     = ["files/config.json", "files/sshd"]
     destination = "/tmp/"
   }
 
@@ -187,7 +194,7 @@ build {
 
   post-processors {
     post-processor "docker-tag" {
-      repository = join("", [var.login_server, "/devctr"])
+      repository = join("", [var.login_server, "/", var.docker_imagename])
       tags       = [var.docker_image_version]
     }
     post-processor "docker-push" {
@@ -204,7 +211,7 @@ build {
   sources = ["source.docker.ubuntu"]
 
   provisioner "file" {
-    sources     = ["files/config.json"]
+    sources     = ["files/config.json", "files/sshd"]
     destination = "/tmp/"
   }
 
@@ -218,7 +225,8 @@ build {
   }
 
     post-processor "docker-tag" {
-      repository = "local/devctr"
+#      repository = join("", "local/", var.docker_imagename)
+      repository = var.docker_imagename
       tags       = [ "latest" ]
     }
 #  post-processor "docker-import" {
@@ -227,8 +235,6 @@ build {
 #  }
 
 }
-
-
 
 # vmware-iso build
 build {
