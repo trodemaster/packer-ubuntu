@@ -217,7 +217,8 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "CONFIG_CONTAINER=1"
+      "CONFIG_CONTAINER=1",
+      "SSH_KEY=${var.ssh_key}"
     ]
     scripts = [
       "scripts/configure.sh"
