@@ -121,10 +121,19 @@ vm_packages() {
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https
+  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
+}
 
+docker() {
+  sudo apt -y remove docker docker-engine docker.io containerd runc
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  sudo apt update
+  sudo apt -y install docker-ce docker-ce-cli containerd.io
+#  sudo groupadd docker
+  sudo usermod -aG docker $USER
 }
 
 container_packages() {
@@ -338,6 +347,7 @@ cleanup() {
   >~/.bash_history
 }
 
+<<<<<<< Updated upstream
 #echo "config vm $CONFIG_VM"
 #if [[ $CONFIG_VM == "1" ]];then
 #echo "doing config vm"
@@ -360,4 +370,23 @@ echo "doing container build"
 #  golang
 #  hashicorp
 #  prompt
+=======
+if [[ CONFIG_VM=1 ]];then
+  vmware_tools
+  vm_config
+  common_packages
+  remove_snaps
+  golang
+  hashicorp
+  docker
+  prompt
+  cleanup
+fi
+
+if [[ CONFIG_CONTAINER=1 ]];then
+  common_packages
+  golang
+  hashicorp
+  prompt
+>>>>>>> Stashed changes
 fi
