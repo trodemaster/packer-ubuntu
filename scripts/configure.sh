@@ -347,21 +347,18 @@ cleanup() {
   >~/.bash_history
 }
 
-<<<<<<< Updated upstream
-#echo "config vm $CONFIG_VM"
-#if [[ $CONFIG_VM == "1" ]];then
-#echo "doing config vm"
-#  vmware_tools
-#  vm_config
-#  vm_packages
-#  remove_snaps
-#  golang
-#  hashicorp
-#  prompt
-#  cleanup
-#fi
+if [[ $CONFIG_VM =~ "1" ]];then
+echo "doing config vm"
+  vmware_tools
+  vm_config
+  vm_packages
+  remove_snaps
+  golang
+  hashicorp
+  prompt
+  cleanup
+fi
 
-echo "config container $CONFIG_CONTAINER"
 if [[ $CONFIG_CONTAINER =~ "1" ]];then
 echo "doing container build"
   container_packages
@@ -370,23 +367,4 @@ echo "doing container build"
 #  golang
 #  hashicorp
 #  prompt
-=======
-if [[ CONFIG_VM=1 ]];then
-  vmware_tools
-  vm_config
-  common_packages
-  remove_snaps
-  golang
-  hashicorp
-  docker
-  prompt
-  cleanup
-fi
-
-if [[ CONFIG_CONTAINER=1 ]];then
-  common_packages
-  golang
-  hashicorp
-  prompt
->>>>>>> Stashed changes
 fi
