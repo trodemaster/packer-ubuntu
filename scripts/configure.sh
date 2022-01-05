@@ -10,7 +10,7 @@ SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
 # VARS
-if ${CONFIG_VM+x};then
+if ${CONFIG_VM+x}; then
   echo "set $CONFIG_VM"
 else
   echo "unset CONFIG_VM"
@@ -18,28 +18,28 @@ else
 fi
 
 echo "config container env var $CONFIG_CONTAINER"
-if [[ -z $CONFIG_CONTAINER ]];then
+if [[ -z $CONFIG_CONTAINER ]]; then
   echo "unset CONFIG_CONTAINER"
   CONFIG_CONTAINER=0
 else
   echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
 fi
 
-if [[ -z $CONFIG_GOLANG ]];then
+if [[ -z $CONFIG_GOLANG ]]; then
   echo "unset CONFIG_GOLANG"
   CONFIG_GOLANG=0
 else
   echo "CONFIG_GOLANG set to $CONFIG_GOLANG from env var"
 fi
 
-if [[ -z $CONFIG_HASHICORP ]];then
+if [[ -z $CONFIG_HASHICORP ]]; then
   echo "unset CONFIG_HASHICORP"
   CONFIG_HASHICORP=0
 else
   echo "CONFIG_HASHICORP set to $CONFIG_HASHICORP from env var"
 fi
 
-if [[ -z $CONFIG_PROMPT ]];then
+if [[ -z $CONFIG_PROMPT ]]; then
   echo "unset CONFIG_PROMPT"
   CONFIG_PROMPT=0
 else
@@ -132,7 +132,7 @@ docker() {
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
   sudo apt update
   sudo apt -y install docker-ce docker-ce-cli containerd.io
-#  sudo groupadd docker
+  #  sudo groupadd docker
   sudo usermod -aG docker $USER
 }
 
@@ -172,7 +172,7 @@ vm_config() {
   if ! [[ -d ~/code ]]; then
     mkdir ~/code
   fi
-  
+
   # remove cloud-init
   sudo apt -y remove cloud-init
 
@@ -278,6 +278,14 @@ hashicorp() {
   terraform version || true
 }
 
+apt_repo() {
+  if ! [[ $APT_REPO =~ "us.archive.ubuntu.com" ]]; then
+    echo "updating apt repo"
+    sudo sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
+    cat /etc/apt/sources.list
+  fi
+}
+
 cleanup() {
   # clear logs
   sudo logrotate -f /etc/logrotate.conf
@@ -286,45 +294,38 @@ cleanup() {
   >~/.bash_history
 }
 
-<<<<<<< Updated upstream
-#echo "config vm $CONFIG_VM"
-#if [[ $CONFIG_VM == "1" ]];then
-#echo "doing config vm"
-#  vmware_tools
-#  vm_config
-#  vm_packages
-#  remove_snaps
-#  golang
-#  hashicorp
-#  prompt
-#  cleanup
-#fi
-
-echo "config container $CONFIG_CONTAINER"
-if [[ $CONFIG_CONTAINER =~ "1" ]];then
-echo "doing container build"
-  container_packages
-  container_sshd
-#  golang
-#  hashicorp
-#  prompt
-=======
-if [[ CONFIG_VM=1 ]];then
+if [[ $CONFIG_VM =~ "1" ]]; then
+  echo "########vmware_tools########"
   vmware_tools
+  echo "########vm_config########"
   vm_config
-  common_packages
+  echo "########vm_packages########"
+  vm_packages
+  echo "########remove_snaps########"
   remove_snaps
-  golang
+  echo "########golang########"
+  #golang
+  echo "########hashicorp########"
   hashicorp
+  echo "########docker########"
   docker
+  echo "########prompt########"
   prompt
+  echo "########apt_repo########"
+  apt_repo
+  echo "########cleanup########"
   cleanup
 fi
 
-if [[ CONFIG_CONTAINER=1 ]];then
-  common_packages
+if [[ $CONFIG_CONTAINER =~ "1" ]]; then
+  echo "########container_packages########"
+  container_packages
+  echo "########golang########"
   golang
+  echo "########hashicorp########"
   hashicorp
+  echo "########prompt########"
   prompt
->>>>>>> Stashed changes
+  echo "########apt_repo########"
+  apt_repo
 fi

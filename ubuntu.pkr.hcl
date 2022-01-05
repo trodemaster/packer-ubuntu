@@ -73,6 +73,11 @@ variable "ssh_key" {
   default = ""
 }
 
+variable "apt_repo" {
+  type = string
+  default = "us.archive.ubuntu.com\\/ubuntu"
+}
+
 source "vmware-iso" "ubuntu" {
   display_name    = "{{build_name}} ${var.os_version}"
   vm_name         = "{{build_name}}_${var.os_version}"
@@ -91,8 +96,10 @@ source "vmware-iso" "ubuntu" {
     "<wait>",
     "<enter>",
     "c",
+    "<wait2s>",
     "linux /casper/hwe-vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/hwe-initrd <enter>", "boot<enter>"
+    "initrd /casper/hwe-initrd <enter>",
+    "boot<enter>"
   ]
   boot_key_interval = "2ms"
   boot_wait         = "1s"
@@ -217,7 +224,8 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "CONFIG_CONTAINER=1"
+      "CONFIG_CONTAINER=1",
+      "APT_REPO=${var.apt_repo}"
     ]
     scripts = [
       "scripts/configure.sh"
