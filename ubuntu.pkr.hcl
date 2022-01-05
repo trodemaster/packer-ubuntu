@@ -183,7 +183,6 @@ source "vmware-iso" "ubuntu" {
 
 source "docker" "ubuntu" {
   image = "ubuntu"
-  #  export_path = "ubuntu.tar"
   commit = true
   changes = [
     "ENTRYPOINT [\"/usr/bin/dumb-init\", \"--\"]",

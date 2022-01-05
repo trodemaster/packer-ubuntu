@@ -217,7 +217,7 @@ prompt() {
   # add powerline config file
   if ! [[ -d ~/.config/powerline ]]; then
     mkdir -p ~/.config/powerline
-    mv config.json ~/.config/powerline/
+    mv /tmp/config.json ~/.config/powerline/
   fi
 
   # setup profile
@@ -269,30 +269,22 @@ container_prompt() {
   python -m pip install powerline-status
 
   # install source code pro font
-  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
-  unzip -o -d /usr/local/share/fonts /tmp/OTF-source-code-pro*.zip
-  rm /tmp/OTF-source-code-pro*.zip
+  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip -O /tmp/OTF-source-code-pro.zip
+  unzip -o -d /usr/local/share/fonts /tmp/OTF-source-code-pro.zip SourceCodePro-Medium.otf
+  rm /tmp/OTF-source-code-pro.zip
 
   # add powerline config file
-  if ! [[ -d ~/.config/powerline ]]; then
-    mkdir -p ~/.config/powerline
-    mv /tmp/config.json ~/.config/powerline/
+  if ! [[ -d ${HOME}/.config/powerline ]]; then
+    mkdir -p ${HOME}/.config/powerline
+    mv /tmp/config.json ${HOME}/.config/powerline/
   fi
 
   # setup profile
-  cat <<'PROFILE' >/etc/profile.d/bash_profile.sh
+  cat <<'PROFILE' >/etc/profile.d/02-bash-profile.sh
 export GOPATH=/opt/go
 export PATH=$PATH:/opt/go/bin
 export TERM=xterm-256color
 export CLICOLOR=1
-
-if [[ -e /opt/fzf_completion.bash ]]; then
-  source /opt/fzf_completion.bash
-fi
-
-if [[ -e /opt/fzf_key-bindings.bash ]]; then
-  source /opt/fzf_key-bindings.bash
-fi
 
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # big big history
@@ -332,7 +324,7 @@ hashicorp() {
   $SUDOCMD apt update
   $SUDOCMD apt install -y packer || true
   $SUDOCMD apt install -y terraform || true
-  $SUDOCMD apt install -y vault || true
+  $SUDOCMD apt install --reinstall -y vault || true
   vault version || true
   packer version || true
   terraform version || true
@@ -380,12 +372,14 @@ fi
 if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########container_packages########"
   container_packages
+  echo "########container_sshd########"
+  container_sshd
   echo "########golang########"
   golang
   echo "########hashicorp########"
   hashicorp
   echo "########prompt########"
-  prompt
+  container_prompt
   echo "########apt_repo########"
   apt_repo
 fi
