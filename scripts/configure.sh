@@ -355,34 +355,22 @@ cleanup() {
   >~/.bash_history
 }
 
-<<<<<<< HEAD
 if [[ $CONFIG_VM =~ "1" ]]; then
   echo "########vmware_tools########"
-=======
-if [[ $CONFIG_VM =~ "1" ]];then
-echo "doing config vm"
->>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   vmware_tools
   echo "########vm_config########"
   vm_config
-<<<<<<< HEAD
   echo "########vm_packages########"
   vm_packages
   echo "########remove_snaps########"
-=======
-  vm_packages
->>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   remove_snaps
   echo "########golang########"
   #golang
   echo "########hashicorp########"
   hashicorp
-<<<<<<< HEAD
   echo "########docker########"
   docker
   echo "########prompt########"
-=======
->>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   prompt
   echo "########apt_repo########"
   apt_repo
@@ -390,7 +378,6 @@ echo "doing config vm"
   cleanup
 fi
 
-<<<<<<< HEAD
 if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########container_packages########"
   container_packages
@@ -403,14 +390,3 @@ if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########apt_repo########"
   apt_repo
 fi
-=======
-if [[ $CONFIG_CONTAINER =~ "1" ]];then
-echo "doing container build"
-  container_packages
-  container_sshd
-#  container_prompt
-#  golang
-#  hashicorp
-#  prompt
-fi
->>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
