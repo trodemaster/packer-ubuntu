@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+# temp dir for ssh
+if ! [[ -e /run/sshd ]]; then
+  mkdir /run/sshd
+fi
+
