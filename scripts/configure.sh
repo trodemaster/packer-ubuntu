@@ -148,8 +148,10 @@ container_sshd() {
   mkdir -p /usr/local/bin
   mv /tmp/sshd /usr/local/bin/sshd
   chmod +x /usr/local/bin/sshd
-  cat <<SSHDCONFIG >/etc/ssh/sshd_config.d/devcntr
+  echo $SSH_KEY >/etc/ssh/authorized_keys
+  cat <<SSHDCONFIG >/etc/ssh/sshd_config.d/devcntr.conf
 PermitRootLogin prohibit-password
+AuthorizedKeysFile /etc/ssh/authorized_keys
 Port 443
 SSHDCONFIG
 }
@@ -259,6 +261,65 @@ PROFILE
 
 }
 
+container_prompt() {
+  # python packages
+  python -m pip install powerline-status
+
+  # install source code pro font
+  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
+  if ! [[ -d ${HOME}/.fonts ]]; then
+    mkdir ${HOME}/.fonts
+  fi
+
+  unzip -o -d ${HOME}/.fonts ${HOME}/OTF-source-code-pro*.zip
+  rm ${HOME}/OTF-source-code-pro*.zip
+
+  # add powerline config file
+  if ! [[ -d ~/.config/powerline ]]; then
+    mkdir -p ~/.config/powerline
+    mv config.json ~/.config/powerline/
+  fi
+
+  # setup profile
+  cat <<'PROFILE' >/etc/profile.d/bash_profile.sh
+export GOPATH=/opt/go
+export PATH=$PATH:/opt/go/bin
+export TERM=xterm-256color
+export CLICOLOR=1
+
+if [[ -e /opt/fzf_completion.bash ]]; then
+  source /opt/fzf_completion.bash
+fi
+
+if [[ -e /opt/fzf_key-bindings.bash ]]; then
+  source /opt/fzf_key-bindings.bash
+fi
+
+export HISTCONTROL=ignoredups:erasedups # no duplicate entries
+export HISTSIZE=100000                  # big big history
+export HISTFILESIZE=100000              # big big history
+shopt -s histappend                     # append to history, don't overwrite it
+
+# prompt
+export PS1="\[\e[;34m\]\u\[\e[1;37m\]@\h\[\e[;32m\]:\W$ \[\e[0m\]"
+
+# aliases
+alias ls="ls -1"
+alias eaw="sudo setfacl -m u:${USER}:rw"
+
+# seup powerline
+if ( command -v powerline-daemon > /dev/null 2>&1 ); then
+  if [[ $(tty) =~ "dev/pts" ]];then
+    powerline-daemon -q
+    export POWERLINE_BASH_CONTINUATION=1
+    export POWERLINE_BASH_SELECT=1
+    source ${HOME}/.local/lib/python3*/site-packages/powerline/bindings/bash/powerline.sh
+  fi
+fi
+
+PROFILE
+}
+
 hashicorp() {
   # k8s
   sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -294,22 +355,34 @@ cleanup() {
   >~/.bash_history
 }
 
+<<<<<<< HEAD
 if [[ $CONFIG_VM =~ "1" ]]; then
   echo "########vmware_tools########"
+=======
+if [[ $CONFIG_VM =~ "1" ]];then
+echo "doing config vm"
+>>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   vmware_tools
   echo "########vm_config########"
   vm_config
+<<<<<<< HEAD
   echo "########vm_packages########"
   vm_packages
   echo "########remove_snaps########"
+=======
+  vm_packages
+>>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   remove_snaps
   echo "########golang########"
   #golang
   echo "########hashicorp########"
   hashicorp
+<<<<<<< HEAD
   echo "########docker########"
   docker
   echo "########prompt########"
+=======
+>>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13
   prompt
   echo "########apt_repo########"
   apt_repo
@@ -317,6 +390,7 @@ if [[ $CONFIG_VM =~ "1" ]]; then
   cleanup
 fi
 
+<<<<<<< HEAD
 if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########container_packages########"
   container_packages
@@ -329,3 +403,14 @@ if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########apt_repo########"
   apt_repo
 fi
+=======
+if [[ $CONFIG_CONTAINER =~ "1" ]];then
+echo "doing container build"
+  container_packages
+  container_sshd
+#  container_prompt
+#  golang
+#  hashicorp
+#  prompt
+fi
+>>>>>>> 68c853c72965a363108e746fc3b1d0f92e614c13

@@ -225,7 +225,8 @@ build {
   provisioner "shell" {
     environment_vars = [
       "CONFIG_CONTAINER=1",
-      "APT_REPO=${var.apt_repo}"
+      "APT_REPO=${var.apt_repo}",
+      "SSH_KEY=${var.ssh_key}"
     ]
     scripts = [
       "scripts/configure.sh"
