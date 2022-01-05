@@ -28,11 +28,6 @@ variable "cpu_arch" {
   default = "amd64"
 }
 
-variable "uefi_secureBoot" {
-  type    = string
-  default = "TRUE"
-}
-
 variable "os_version" {
   type    = string
   default = "20.04.3"
@@ -76,6 +71,21 @@ variable "ssh_key" {
 variable "apt_repo" {
   type = string
   default = "us.archive.ubuntu.com\\/ubuntu"
+}
+
+variable "docker_login_username" {
+  type = string
+  default = "packer"
+}
+
+variable "docker_login_password" {
+  type = string
+  default = "packer"
+}
+
+variable "docker_login_server" {
+  type = string
+  default = "docker.io"
 }
 
 source "vmware-iso" "ubuntu" {
@@ -206,9 +216,9 @@ build {
     }
     post-processor "docker-push" {
       login          = true
-      login_server   = var.login_server
-      login_username = var.login_username
-      login_password = var.login_password
+      login_server   = var.docker_login_server
+      login_username = var.docker_login_username
+      login_password = var.docker_login_password
     }
   }
 }
