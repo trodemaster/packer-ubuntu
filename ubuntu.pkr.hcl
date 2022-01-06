@@ -197,12 +197,18 @@ source "docker" "ubuntu" {
 build {
   name    = "remote"
   sources = ["source.docker.ubuntu"]
+
   provisioner "file" {
     sources     = ["files/config.json", "files/sshd"]
     destination = "/tmp/"
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "CONFIG_CONTAINER=1",
+      "APT_REPO=${var.apt_repo}",
+      "SSH_KEY=${var.ssh_key}"
+    ]
     scripts = [
       "scripts/configure.sh"
     ]
@@ -210,8 +216,8 @@ build {
 
   post-processors {
     post-processor "docker-tag" {
-      repository = join("", [var.login_server, "/", var.docker_imagename])
-      tags       = [var.docker_image_version]
+      repository = join("", [var.docker_login_server, "/", var.docker_imagename])
+      tags       = ["latest"]
     }
     post-processor "docker-push" {
       login          = true
@@ -243,15 +249,9 @@ build {
   }
 
     post-processor "docker-tag" {
-#      repository = join("", "local/", var.docker_imagename)
       repository = var.docker_imagename
       tags       = [ "latest" ]
     }
-#  post-processor "docker-import" {
-#    repository = "local/devctr"
-#    tag        = "latest"
-#  }
-
 }
 
 # vmware-iso build

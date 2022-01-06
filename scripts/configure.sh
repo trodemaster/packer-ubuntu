@@ -324,6 +324,7 @@ hashicorp() {
   $SUDOCMD apt update
   $SUDOCMD apt install -y packer || true
   $SUDOCMD apt install -y terraform || true
+  $SUDOCMD apt install -y vault || true
   $SUDOCMD apt install --reinstall -y vault || true
   vault version || true
   packer version || true
@@ -356,7 +357,7 @@ if [[ $CONFIG_VM =~ "1" ]]; then
   echo "########remove_snaps########"
   remove_snaps
   echo "########golang########"
-  #golang
+  golang
   echo "########hashicorp########"
   hashicorp
   echo "########docker########"
