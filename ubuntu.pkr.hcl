@@ -259,12 +259,13 @@ build {
   sources = ["source.vmware-iso.ubuntu"]
   provisioner "file" {
     sources     = ["files/config.json"]
-    destination = "~/"
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
     environment_vars = [
-      "CONFIG_VM=1"
+      "CONFIG_VM=1",
+      "APT_REPO=${var.apt_repo}"
     ]
     scripts = [
       "scripts/configure.sh"
