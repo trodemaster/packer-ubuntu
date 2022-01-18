@@ -193,6 +193,7 @@ golang() {
   go install github.com/minio/mc@latest
   go install github.com/muesli/duf@latest
   go install github.com/junegunn/fzf@latest
+  go install filippo.io/age/cmd/...@latest
   wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash
   wget -q -O ${HOME}/.fzf_key-bindings.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.bash
 
@@ -220,7 +221,7 @@ prompt() {
   # setup profile
   cat <<'PROFILE' >${HOME}/.bash_profile
 export GOPATH=${HOME}/code/go
-export PATH=$PATH:${HOME}/code/go/bin:${HOME}/.local/bin/
+export PATH=$PATH:/usr/local/go/bin:${HOME}/code/go/bin:${HOME}/.local/bin/
 export TERM=xterm-256color
 export CLICOLOR=1
 
@@ -283,7 +284,7 @@ container_prompt() {
   # setup profile
   cat <<'PROFILE' >/etc/profile.d/bash_profile.sh
 export GOPATH=/opt/go
-export PATH=$PATH:/opt/go/bin
+export PATH=$PATH:/usr/local/go/bin:/opt/go/bin
 export TERM=xterm-256color
 export CLICOLOR=1
 
