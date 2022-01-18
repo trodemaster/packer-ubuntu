@@ -28,11 +28,6 @@ variable "cpu_arch" {
   default = "amd64"
 }
 
-variable "uefi_secureBoot" {
-  type    = string
-  default = "TRUE"
-}
-
 variable "os_version" {
   type    = string
   default = "20.04.3"
@@ -76,6 +71,21 @@ variable "ssh_key" {
 variable "apt_repo" {
   type = string
   default = "us.archive.ubuntu.com\\/ubuntu"
+}
+
+variable "docker_login_username" {
+  type = string
+  default = "packer"
+}
+
+variable "docker_login_password" {
+  type = string
+  default = "packer"
+}
+
+variable "docker_login_server" {
+  type = string
+  default = "docker.io"
 }
 
 source "vmware-iso" "ubuntu" {
@@ -173,7 +183,6 @@ source "vmware-iso" "ubuntu" {
 
 source "docker" "ubuntu" {
   image = "ubuntu"
-  #  export_path = "ubuntu.tar"
   commit = true
   changes = [
     "ENTRYPOINT [\"/usr/bin/dumb-init\", \"--\"]",
@@ -188,12 +197,18 @@ source "docker" "ubuntu" {
 build {
   name    = "remote"
   sources = ["source.docker.ubuntu"]
+
   provisioner "file" {
     sources     = ["files/config.json", "files/sshd"]
     destination = "/tmp/"
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "CONFIG_CONTAINER=1",
+      "APT_REPO=${var.apt_repo}",
+      "SSH_KEY=${var.ssh_key}"
+    ]
     scripts = [
       "scripts/configure.sh"
     ]
@@ -201,14 +216,14 @@ build {
 
   post-processors {
     post-processor "docker-tag" {
-      repository = join("", [var.login_server, "/", var.docker_imagename])
-      tags       = [var.docker_image_version]
+      repository = join("", [var.docker_login_server, "/", var.docker_imagename])
+      tags       = ["latest"]
     }
     post-processor "docker-push" {
       login          = true
-      login_server   = var.login_server
-      login_username = var.login_username
-      login_password = var.login_password
+      login_server   = var.docker_login_server
+      login_username = var.docker_login_username
+      login_password = var.docker_login_password
     }
   }
 }
@@ -234,15 +249,9 @@ build {
   }
 
     post-processor "docker-tag" {
-#      repository = join("", "local/", var.docker_imagename)
       repository = var.docker_imagename
       tags       = [ "latest" ]
     }
-#  post-processor "docker-import" {
-#    repository = "local/devctr"
-#    tag        = "latest"
-#  }
-
 }
 
 # vmware-iso build
@@ -250,12 +259,13 @@ build {
   sources = ["source.vmware-iso.ubuntu"]
   provisioner "file" {
     sources     = ["files/config.json"]
-    destination = "~/"
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
     environment_vars = [
-      "CONFIG_VM=1"
+      "CONFIG_VM=1",
+      "APT_REPO=${var.apt_repo}"
     ]
     scripts = [
       "scripts/configure.sh"

@@ -9,12 +9,13 @@ IFS=$'\n\t'
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
-# VARS
-if ${CONFIG_VM+x}; then
-  echo "set $CONFIG_VM"
-else
+echo "config VM env var $CONFIG_VM"
+if [[ -z $CONFIG_VM ]]; then
   echo "unset CONFIG_VM"
   CONFIG_VM=0
+else
+  echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
+  SUDOCMD="sudo"
 fi
 
 echo "config container env var $CONFIG_CONTAINER"
@@ -23,6 +24,8 @@ if [[ -z $CONFIG_CONTAINER ]]; then
   CONFIG_CONTAINER=0
 else
   echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
+  SUDOCMD=""
+  HOME="/"
 fi
 
 if [[ -z $CONFIG_GOLANG ]]; then
@@ -77,7 +80,7 @@ while getopts "vcgthp" OPTION; do
 done
 
 # configurables
-GO_VERSION="1.17.2"
+GO_VERSION="1.17.5"
 if [[ $(uname -m) == "x86_64" ]]; then
   LINUX_ARCH="amd64"
 elif [[ $(uname -m) == "aarch64" ]]; then
@@ -140,7 +143,7 @@ container_packages() {
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
   apt update
-  apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https
+  apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https curl nmap traceroute apt-utils software-properties-common
   apt autoremove --purge
 }
 
@@ -183,7 +186,7 @@ vm_config() {
 golang() {
   # install golang
   wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
-  sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
+  $SUDOCMD tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
   PATH=$PATH:/usr/local/go/bin
   go version
   rm go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
@@ -204,7 +207,7 @@ prompt() {
   python -m pip install powerline-status
 
   # install source code pro font
-  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
+  wget https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
   if ! [[ -d ${HOME}/.fonts ]]; then
     mkdir ${HOME}/.fonts
   fi
@@ -215,7 +218,7 @@ prompt() {
   # add powerline config file
   if ! [[ -d ~/.config/powerline ]]; then
     mkdir -p ~/.config/powerline
-    mv config.json ~/.config/powerline/
+    mv /tmp/config.json ~/.config/powerline/
   fi
 
   # setup profile
@@ -267,34 +270,22 @@ container_prompt() {
   python -m pip install powerline-status
 
   # install source code pro font
-  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip
-  if ! [[ -d ${HOME}/.fonts ]]; then
-    mkdir ${HOME}/.fonts
-  fi
-
-  unzip -o -d ${HOME}/.fonts ${HOME}/OTF-source-code-pro*.zip
-  rm ${HOME}/OTF-source-code-pro*.zip
+  wget -q https://github.com/adobe-fonts/source-code-pro/releases/download/2.038R-ro%2F1.058R-it%2F1.018R-VAR/OTF-source-code-pro-2.038R-ro-1.058R-it.zip -O /tmp/OTF-source-code-pro.zip
+  unzip -o -d /usr/local/share/fonts /tmp/OTF-source-code-pro.zip SourceCodePro-Medium.otf
+  rm /tmp/OTF-source-code-pro.zip
 
   # add powerline config file
-  if ! [[ -d ~/.config/powerline ]]; then
-    mkdir -p ~/.config/powerline
-    mv config.json ~/.config/powerline/
+  if ! [[ -d ${HOME}/.config/powerline ]]; then
+    mkdir -p ${HOME}/.config/powerline
+    mv /tmp/config.json ${HOME}/.config/powerline/
   fi
 
   # setup profile
-  cat <<'PROFILE' >/etc/profile.d/bash_profile.sh
+  cat <<'PROFILE' >/etc/profile.d/02-bash-profile.sh
 export GOPATH=/opt/go
 export PATH=$PATH:/usr/local/go/bin:/opt/go/bin
 export TERM=xterm-256color
 export CLICOLOR=1
-
-if [[ -e /opt/fzf_completion.bash ]]; then
-  source /opt/fzf_completion.bash
-fi
-
-if [[ -e /opt/fzf_key-bindings.bash ]]; then
-  source /opt/fzf_key-bindings.bash
-fi
 
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # big big history
@@ -323,18 +314,19 @@ PROFILE
 
 hashicorp() {
   # k8s
-  sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-  sudo apt update
-  sudo apt install -y kubectl
+  $SUDOCMD curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | $SUDOCMD tee /etc/apt/sources.list.d/kubernetes.list
+  $SUDOCMD apt update
+  $SUDOCMD apt install -y kubectl
 
   # hashicorp
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-  sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  sudo apt update
-  sudo apt install -y packer || true
-  sudo apt install -y terraform || true
-  sudo apt install -y vault || true
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD apt-key add -
+  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  $SUDOCMD apt update
+  $SUDOCMD apt install -y packer || true
+  $SUDOCMD apt install -y terraform || true
+  $SUDOCMD apt install -y vault || true
+  $SUDOCMD apt install --reinstall -y vault || true
   vault version || true
   packer version || true
   terraform version || true
@@ -343,14 +335,14 @@ hashicorp() {
 apt_repo() {
   if ! [[ $APT_REPO =~ "us.archive.ubuntu.com" ]]; then
     echo "updating apt repo"
-    sudo sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
+    $SUDOCMD sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
     cat /etc/apt/sources.list
   fi
 }
 
 cleanup() {
   # clear logs
-  sudo logrotate -f /etc/logrotate.conf
+  $SUDOCMD logrotate -f /etc/logrotate.conf
 
   # Clear bash history
   >~/.bash_history
@@ -366,7 +358,7 @@ if [[ $CONFIG_VM =~ "1" ]]; then
   echo "########remove_snaps########"
   remove_snaps
   echo "########golang########"
-  #golang
+  golang
   echo "########hashicorp########"
   hashicorp
   echo "########docker########"
@@ -382,12 +374,14 @@ fi
 if [[ $CONFIG_CONTAINER =~ "1" ]]; then
   echo "########container_packages########"
   container_packages
+  echo "########container_sshd########"
+  container_sshd
   echo "########golang########"
   golang
   echo "########hashicorp########"
   hashicorp
   echo "########prompt########"
-  prompt
+  container_prompt
   echo "########apt_repo########"
   apt_repo
 fi
