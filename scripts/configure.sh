@@ -131,10 +131,11 @@ vm_packages() {
 
 docker() {
   sudo apt -y remove docker docker-engine docker.io containerd runc
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  # echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
   sudo apt update
-  sudo apt -y install docker-ce docker-ce-cli containerd.io
+  #sudo apt -y install docker-ce docker-ce-cli containerd.io
+  curl -fsSL test.docker.com -o get-docker.sh && sh get-docker.sh
   #  sudo groupadd docker
   sudo usermod -aG docker $USER
 }
@@ -143,7 +144,7 @@ container_packages() {
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
   apt update
-  apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https curl nmap traceroute apt-utils software-properties-common
+  apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https curl nmap traceroute apt-utils software-properties-common bind9-dnsutils netcat neovim
   apt autoremove --purge
 }
 
@@ -194,7 +195,7 @@ golang() {
 
   # install packages using go get
   go install github.com/minio/mc@latest
-  go install github.com/muesli/duf@latest
+  #go install github.com/muesli/duf@latest
   go install github.com/junegunn/fzf@latest
   go install filippo.io/age/cmd/...@latest
   wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash
