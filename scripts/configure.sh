@@ -195,7 +195,7 @@ golang() {
 
   # install packages using go get
   go install github.com/minio/mc@latest
-  #go install github.com/muesli/duf@latest
+  go install github.com/muesli/duf@latest
   go install github.com/junegunn/fzf@latest
   go install filippo.io/age/cmd/...@latest
   wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash

@@ -26,7 +26,7 @@ fi
 
 # default build action
 if [[ $(uname) =~ "Linux" ]];then
-  packer build -force -only local.docker.ubuntu -var cpu_arch=$ARCH .
+  packer build -force -only remote.docker.ubuntu -var cpu_arch=$ARCH .
 elif [[ $(uname) =~ "Darwin" ]];then
   pkill vmx || true
   pkill Fusion || true
