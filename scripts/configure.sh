@@ -144,6 +144,11 @@ container_packages() {
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
   apt update
+  apt -y install curl
+  curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+  apt update
+  apt install -y kubectl
   apt -y install dumb-init ssh iproute2 jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate tree acl apt-transport-https curl nmap traceroute apt-utils software-properties-common bind9-dnsutils netcat neovim
   apt autoremove --purge
 }
@@ -314,12 +319,6 @@ PROFILE
 }
 
 hashicorp() {
-  # k8s
-  $SUDOCMD curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | $SUDOCMD tee /etc/apt/sources.list.d/kubernetes.list
-  $SUDOCMD apt update
-  $SUDOCMD apt install -y kubectl
-
   # hashicorp
   curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD apt-key add -
   $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
