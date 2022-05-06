@@ -122,13 +122,15 @@ source "vmware-iso" "ubuntu" {
   guest_os_type     = var.guest_os_type
   headless          = false
   skip_compaction   = true
+#  iso_url           = "file:///Volumes/zen/iso/ubuntu-20.04.2-live-server-arm64.iso"
+#  iso_checksum      = "sha256:69460b49c6781a845ca561263af3850e107814ffb9c08a19555e819d49feef4c"
   iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
   iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
   ssh_password      = var.user_password
-  ssh_timeout       = "10m"
+  ssh_timeout       = "20m"
   ssh_username      = var.user_username
   version           = "19"
   vmx_data = {

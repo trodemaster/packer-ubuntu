@@ -28,10 +28,10 @@ fi
 if [[ $(uname) =~ "Linux" ]];then
   packer build -force -only remote.docker.ubuntu -on-error abort -var cpu_arch=$ARCH .
 elif [[ $(uname) =~ "Darwin" ]];then
-  # pkill vmx || true
-  # pkill Fusion || true
-  # PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
-   PACKER_LOG=1 packer build -force -only qemu.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
+   pkill vmx || true
+   pkill Fusion || true
+   PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
+   #PACKER_LOG=1 packer build -force -only qemu.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
 fi
 
 exit 0
