@@ -218,7 +218,7 @@ source "qemu" "ubuntu" {
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>",
     "boot<enter>",
-    "<wait2m>"
+    "<wait3m>"
   ]
   boot_key_interval = "3ms"
   boot_wait         = "1s"
@@ -235,8 +235,8 @@ source "qemu" "ubuntu" {
   [ "-accel", "hvf" ],
   [ "-accel", "tcg,tb-size=8192" ],
   [ "-boot", "menu=on" ],
-  [ "-device", "virtio-net-device,netdev=net0" ],
-  [ "-netdev", "user,id=net0" ],
+  [ "-netdev", "user,hostfwd=tcp::{{ .SSHHostPort }}-:22,id=forward"], 
+  [ "-device", "virtio-net-device,netdev=forward,id=net0"],
   [ "-device", "usb-ehci" ],
   [ "-device", "usb-kbd" ], 
   [ "-device", "usb-mouse" ],
