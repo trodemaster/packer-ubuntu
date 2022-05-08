@@ -10,3 +10,4 @@ crash.log
 nextbook.auto.pkrvars.hcl
 *.auto.pkrvars.hcl
 ubuntu.qcow2
+*.fd

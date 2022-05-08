@@ -184,12 +184,13 @@ source "vmware-iso" "ubuntu" {
 }
 
 source "qemu" "ubuntu" {
-  iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
-  iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
+  iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/SHA256SUMS"
+  iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
   disk_size         = var.disk_gb * 1024
+  memory = var.ram_gb * 1024
   format            = "qcow2"
   accelerator       = "hvf"
   ssh_password      = var.user_password
@@ -208,22 +209,25 @@ source "qemu" "ubuntu" {
     })
   }
   boot_command = [
-    "<wait>",
+    "<wait2>",
+    "<e>",
+    "<f2>",
     "<enter>",
-    "c",
-    "<wait2s>",
-    "linux /casper/hwe-vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/hwe-initrd <enter>",
-    "boot<enter>"
+    "<wait>",
+    "set gfxpayload=keep <enter>",
+    "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
+    "initrd /casper/initrd <enter>",
+    "boot<enter>",
+    "<wait2m>"
   ]
-  boot_key_interval = "2ms"
+  boot_key_interval = "3ms"
   boot_wait         = "1s"
-  firmware = "/Applications/UTM.app/Contents/Resources/qemu/edk2-aarch64-code.fd"
+  firmware = "files/RELEASEAARCH64_QEMU_EFI.fd"
   qemu_binary = "qemu-system-aarch64"
   qemuargs = [
   [ "-nodefaults" ],
   [ "-vga", "none" ],
-  [ "-device", "virtio-ramfb" ],
+  [ "-display", "cocoa,show-cursor=on"],
   [ "-device", "virtio-rng-pci" ],
   [ "-cpu", "host" ],
   [ "-smp", "cpus=8,sockets=1,cores=8,threads=1" ],
@@ -231,22 +235,13 @@ source "qemu" "ubuntu" {
   [ "-accel", "hvf" ],
   [ "-accel", "tcg,tb-size=8192" ],
   [ "-boot", "menu=on" ],
-  [ "-device", "hda-duplex" ],
-  [ "-device", "nec-usb-xhci,id=usb-bus" ],
-  [ "-device", "usb-tablet,bus=usb-bus.0" ],
-  [ "-device", "usb-mouse,bus=usb-bus.0" ],
-  [ "-device", "usb-kbd,bus=usb-bus.0" ],
-  [ "-device", "ich9-usb-ehci1,id=usb-controller-0" ],
-  [ "-device", "ich9-usb-uhci1,masterbus=usb-controller-0.0,firstport=0,multifunction=on" ],
-  [ "-device ", "ich9-usb-uhci2,masterbus=usb-controller-0.0,firstport=2,multifunction=on" ],
-  [ "-device", "ich9-usb-uhci3,masterbus=usb-controller-0.0,firstport=4,multifunction=on" ],
-  [ "-device", "usb-storage,drive=cdrom0,removable=true,bootindex=0,bus=usb-bus.0" ],
-  [ "-drive", "if=none,media=cdrom,id=cdrom0" ],
-  [ "-device", "virtio-blk-pci,drive=drive0,bootindex=1" ],
-  [ "-drive", "if=none,media=disk,id=drive0,file=/Users/blake/Library/Containers/com.utmapp.UTM/Data/Documents/Ubuntu2204.utm/Images/data.qcow2,cache=writethrough" ],
-  [ "-device", "virtio-net-pci,mac=7E:75:F1:8B:BF:56,netdev=net0 -netdev vmnet-macos,mode=shared,id=net0" ],
-  [ "-device", "virtio-serial -device virtserialport,chardev=vdagent,name=com.redhat.spice.0" ],
-  [ "-rtc base=localtim" ]
+  [ "-device", "virtio-net-device,netdev=net0" ],
+  [ "-netdev", "user,id=net0" ],
+  [ "-device", "usb-ehci" ],
+  [ "-device", "usb-kbd" ], 
+  [ "-device", "usb-mouse" ],
+  [ "-device", "virtio-gpu-pci" ]
+
 ]
 }
 

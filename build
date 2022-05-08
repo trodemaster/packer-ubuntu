@@ -30,8 +30,8 @@ if [[ $(uname) =~ "Linux" ]];then
 elif [[ $(uname) =~ "Darwin" ]];then
    pkill vmx || true
    pkill Fusion || true
-   PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
-   #PACKER_LOG=1 packer build -force -only qemu.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
+   #PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
+   PACKER_LOG=1 packer build -force -only qemu.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS .
 fi
 
 exit 0
