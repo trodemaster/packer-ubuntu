@@ -218,7 +218,7 @@ source "qemu" "ubuntu" {
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>",
     "boot<enter>",
-    "<wait3m>"
+    "<wait150s>"
   ]
   boot_key_interval = "3ms"
   boot_wait         = "1s"
