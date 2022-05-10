@@ -196,7 +196,7 @@ source "qemu" "ubuntu" {
   ssh_password      = var.user_password
   ssh_timeout       = "10m"
   ssh_username      = var.user_username
-  vm_name         = "{{build_name}}_${var.os_version}"
+  vm_name         = "{{build_name}}_${var.os_version}.qcow2"
   net_device        = "virtio-net"
   disk_interface    = "virtio"
   http_content = {
@@ -247,6 +247,20 @@ source "qemu" "ubuntu" {
 
 build {
   sources = ["source.qemu.ubuntu"]
+    provisioner "file" {
+    sources     = ["files/config.json"]
+    destination = "/tmp/"
+  }
+
+  provisioner "shell" {
+    environment_vars = [
+      "CONFIG_VM=1",
+      "APT_REPO=${var.apt_repo}"
+    ]
+    scripts = [
+      "scripts/configure.sh"
+    ]
+  }
 }
 
 
