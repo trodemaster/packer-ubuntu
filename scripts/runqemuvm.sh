@@ -21,7 +21,11 @@ sudo qemu-system-aarch64 \
   -device virtio-blk-device,drive=hd0,serial="dummyserial" \
   -device virtio-net-pci,mac=06:6D:A1:46:DF:05,netdev=net0 \
   -netdev vmnet-shared,id=net0 \
-  -device usb-ehci -device usb-kbd -device usb-mouse -usb \
+  -device nec-usb-xhci,id=usb-bus \
+  -device usb-tablet,bus=usb-bus.0 \
+  -device usb-mouse,bus=usb-bus.0 \
+  -device usb-kbd,bus=usb-bus.0 \
+  -device qemu-xhci,id=usb-controller-0 \
   -device virtio-gpu-pci \
   -monitor stdio
 
