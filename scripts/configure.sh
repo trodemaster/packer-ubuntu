@@ -49,6 +49,13 @@ else
   echo "CONFIG_PROMPT set to $CONFIG_PROMPT from env var"
 fi
 
+if [[ -z $APT_REPO ]]; then
+  echo "unset APT_REPO"
+  APT_REPO=0
+else
+  echo "APT_REPO set to $APT_REPO from env var"
+fi
+
 # need to set bash strict mode after slurping up vars
 set -euo pipefail
 
@@ -108,13 +115,15 @@ remove_snaps() {
   if [[ -f /bin/running-in-container ]]; then
     echo "running in container"
   else
-    sudo snap remove lxd
-    sudo systemctl stop snapd
-    sudo apt -y purge snapd
-    rm -rf ~/snap
-    sudo rm -rf /snap
-    sudo rm -rf /var/snap
-    sudo rm -rf /var/lib/snapd
+    if (dpkg -s snap &>/dev/null); then
+      sudo snap remove lxd
+      sudo systemctl stop snapd
+      sudo apt -y purge snapd
+      rm -rf ~/snap
+      sudo rm -rf /snap
+      sudo rm -rf /var/snap
+      sudo rm -rf /var/lib/snapd
+    fi
   fi
 }
 
@@ -124,7 +133,7 @@ vm_packages() {
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release
+  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
 }
@@ -224,7 +233,62 @@ prompt() {
   # add powerline config file
   if ! [[ -d ~/.config/powerline ]]; then
     mkdir -p ~/.config/powerline
-    mv /tmp/config.json ~/.config/powerline/
+  #  mv /tmp/config.json ~/.config/powerline/
+    tee ~/.config/powerline/config.json >/dev/null <<-PLCONFIG
+{
+	"common": {
+		"term_truecolor": false
+	},
+	"ext": {
+		"ipython": {
+			"colorscheme": "default",
+			"theme": "in",
+			"local_themes": {
+				"rewrite": "rewrite",
+				"out": "out",
+				"in2": "in2"
+			}
+		},
+		"pdb": {
+			"colorscheme": "default",
+			"theme": "default"
+		},
+		"shell": {
+			"colorscheme": "default",
+			"theme": "default_leftonly",
+			"local_themes": {
+				"continuation": "continuation",
+				"select": "select"
+			}
+		},
+		"tmux": {
+			"colorscheme": "default",
+			"theme": "default"
+		},
+		"vim": {
+			"colorscheme": "default",
+			"theme": "default",
+			"local_themes": {
+				"__tabline__": "tabline",
+
+				"cmdwin": "cmdwin",
+				"help": "help",
+				"quickfix": "quickfix",
+
+				"powerline.matchers.vim.plugin.nerdtree.nerdtree": "plugin_nerdtree",
+				"powerline.matchers.vim.plugin.commandt.commandt": "plugin_commandt",
+				"powerline.matchers.vim.plugin.gundo.gundo": "plugin_gundo",
+				"powerline.matchers.vim.plugin.gundo.gundo_preview": "plugin_gundo-preview"
+			}
+		},
+		"wm": {
+			"colorscheme": "default",
+			"theme": "default",
+			"update_interval": 2
+		}
+	}
+}
+PLCONFIG
   fi
 
   # setup profile
@@ -333,7 +397,7 @@ hashicorp() {
 }
 
 apt_repo() {
-  if ! [[ $APT_REPO =~ "us.archive.ubuntu.com" ]]; then
+  if [[ $APT_REPO != "0" ]]; then
     echo "updating apt repo"
     $SUDOCMD sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
     cat /etc/apt/sources.list
