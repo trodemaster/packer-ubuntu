@@ -87,7 +87,7 @@ while getopts "vcgthp" OPTION; do
 done
 
 # configurables
-GO_VERSION="1.17.5"
+GO_VERSION="1.18.1"
 if [[ $(uname -m) == "x86_64" ]]; then
   LINUX_ARCH="amd64"
 elif [[ $(uname -m) == "aarch64" ]]; then
@@ -140,13 +140,13 @@ vm_packages() {
 
 docker() {
   sudo apt -y remove docker docker.io containerd runc
-  # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-  # echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  sudo apt install apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt update
-  #sudo apt -y install docker-ce docker-ce-cli containerd.io
-  curl -fsSL test.docker.com -o get-docker.sh && sh get-docker.sh
-  #  sudo groupadd docker
-  sudo usermod -aG docker $USER
+  apt-cache policy docker-ce
+  sudo apt install -y docker-ce
+  sudo usermod -aG docker ${USER}
 }
 
 container_packages() {
@@ -212,6 +212,8 @@ golang() {
   go install github.com/muesli/duf@latest
   go install github.com/junegunn/fzf@latest
   go install filippo.io/age/cmd/...@latest
+  go install github.com/joemiller/vault-token-helper@latest
+  # vault-token-helper enable
   wget -q -O ${HOME}/.fzf_completion.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.bash
   wget -q -O ${HOME}/.fzf_key-bindings.bash https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.bash
 

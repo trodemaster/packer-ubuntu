@@ -70,7 +70,7 @@ variable "ssh_key" {
 
 variable "apt_repo" {
   type = string
-  default = "us.archive.ubuntu.com\\/ubuntu"
+  default = "0"
 }
 
 variable "docker_login_username" {
@@ -122,10 +122,8 @@ source "vmware-iso" "ubuntu" {
   guest_os_type     = var.guest_os_type
   headless          = false
   skip_compaction   = true
-#  iso_url           = "file:///Volumes/zen/iso/ubuntu-20.04.2-live-server-arm64.iso"
-#  iso_checksum      = "sha256:69460b49c6781a845ca561263af3850e107814ffb9c08a19555e819d49feef4c"
-  iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
-  iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
+  iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
+  iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-arm64.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
@@ -184,8 +182,8 @@ source "vmware-iso" "ubuntu" {
 }
 
 source "qemu" "ubuntu" {
-  iso_checksum      = "file:https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/SHA256SUMS"
-  iso_url           = "https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
+  iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
+  iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-arm64.iso"
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
@@ -218,7 +216,7 @@ source "qemu" "ubuntu" {
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>",
     "boot<enter>",
-    "<wait150s>"
+    "<wait200s>"
   ]
   boot_key_interval = "3ms"
   boot_wait         = "1s"
@@ -258,7 +256,8 @@ build {
       "APT_REPO=${var.apt_repo}"
     ]
     scripts = [
-      "scripts/configure.sh"
+      "scripts/configure.sh",
+      "scripts/qemu.sh"
     ]
   }
 }
