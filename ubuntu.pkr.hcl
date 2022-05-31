@@ -106,10 +106,11 @@ source "vmware-iso" "ubuntu" {
     "<wait>",
     "<enter>",
     "c",
-    "<wait2s>",
+    "<wait4s>",
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>",
-    "boot<enter>"
+    "boot<enter>",
+    "<wait2m>"
   ]
   boot_key_interval = "2ms"
   boot_wait         = "1s"
