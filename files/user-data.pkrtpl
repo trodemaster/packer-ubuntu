@@ -32,4 +32,4 @@ autoinstall:
   late-commands:
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
     - echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/sudo
-    - /target/usr/bin/efibootmgr -o 0006,0005,0004,0003,0002,0001,0000
+    - if [[ $(uname -m) == aarch64 ]];then /target/usr/bin/efibootmgr -o 0006,0005,0004,0003,0002,0001,0000; fi
