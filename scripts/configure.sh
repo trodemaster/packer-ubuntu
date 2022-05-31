@@ -406,6 +406,13 @@ apt_repo() {
   fi
 }
 
+gh() {
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  sudo apt update
+  sudo apt install gh
+}
+
 cleanup() {
   # clear logs
   $SUDOCMD logrotate -f /etc/logrotate.conf
@@ -433,6 +440,8 @@ if [[ $CONFIG_VM =~ "1" ]]; then
   prompt
   echo "########apt_repo########"
   apt_repo
+  echo "########apt_repo########"
+  gh
   echo "########cleanup########"
   cleanup
 fi
