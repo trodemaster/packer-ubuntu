@@ -115,7 +115,7 @@ remove_snaps() {
   if [[ -f /bin/running-in-container ]]; then
     echo "running in container"
   else
-    if (dpkg -s snap &>/dev/null); then
+    if (dpkg -s snapd &>/dev/null); then
       sudo snap remove lxd
       sudo systemctl stop snapd
       sudo apt -y purge snapd
@@ -386,7 +386,7 @@ PROFILE
 
 hashicorp() {
   # hashicorp
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD apt-key add -
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD tee /etc/apt/trusted.gpg.d/hashicorp.asc
   $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
   $SUDOCMD apt update
   $SUDOCMD apt install -y packer || true
@@ -420,6 +420,23 @@ cleanup() {
   # Clear bash history
   >~/.bash_history
 }
+
+if [[ $CONFIG_IRON =~ "1" ]]; then
+  echo "########vm_packages########"
+  vm_packages
+  echo "########remove_snaps########"
+  remove_snaps
+  echo "########golang########"
+  golang
+  echo "########prompt########"
+  prompt
+  echo "########apt_repo########"
+  apt_repo
+  echo "########apt_repo########"
+  gh
+  echo "########cleanup########"
+  cleanup
+fi
 
 if [[ $CONFIG_VM =~ "1" ]]; then
   echo "########vmware_tools########"
