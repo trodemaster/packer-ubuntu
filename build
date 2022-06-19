@@ -26,7 +26,7 @@ fi
 
 # default build action
 if [[ $(uname) =~ "Linux" ]]; then
-  packer build -force -only remote.docker.ubuntu -on-error abort -var cpu_arch=$ARCH .
+  packer build -force -only remote.docker.ubuntu -on-error abort -var cpu_arch=$ARCH -except=docker-push .
 elif [[ $(uname) =~ "Darwin" ]]; then
   if [[ $ARCH =~ "amd64" ]]; then
     PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
