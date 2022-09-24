@@ -3,6 +3,12 @@
 
 sudo apt update
 sudo apt install open-vm-tools
+# git clone --depth 1 https://github.com/vmware/open-vm-tools.git ~/code/open-vm-tools
+# autoreconf -i
+# ./configure
+# make
+# sudo make install
+# sudo ldconfig
 
 # Report the version of tools installed
 if [ -e /usr/bin/vmware-toolbox-cmd ]; then

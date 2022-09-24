@@ -56,6 +56,13 @@ else
   echo "APT_REPO set to $APT_REPO from env var"
 fi
 
+if [[ -z $CONFIG_IRON ]]; then
+  echo "unset CONFIG_IRON"
+  CONFIG_IRON=0
+else
+  echo "CONFIG_IRON set to $CONFIG_IRON from env var"
+fi
+
 # need to set bash strict mode after slurping up vars
 set -euo pipefail
 
@@ -131,9 +138,11 @@ vm_packages() {
 
   # load the latest updates & packages
   export DEBIAN_FRONTEND=noninteractive
+  sudo add-apt-repository ppa:cappelikan/ppa
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq glances git wget unzip tmux python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common
+  sudo apt -y install jq neofetch glances git wget unzip tmux autoconf python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common mainline
+  sudo mainline --install-latest --yes # --include-unstable
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
 }
@@ -182,6 +191,9 @@ vm_config() {
 
   # fixup sshd_conf
   sudo sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
+
+  # set ssh login baner
+  echo "neofetch" >> ~/.ssh/rc
 
   # set timezone to UTC
   if [[ -e /usr/bin/timedatectl ]]; then
@@ -317,7 +329,7 @@ shopt -s histappend                     # append to history, don't overwrite it
 export PS1="\[\e[;34m\]\u\[\e[1;37m\]@\h\[\e[;32m\]:\W$ \[\e[0m\]"
 
 # aliases
-alias ls="ls -1"
+alias ls="ls -1 --color"
 alias eaw="sudo setfacl -m u:${USER}:rw"
 
 # seup powerline
@@ -387,7 +399,8 @@ PROFILE
 hashicorp() {
   # hashicorp
   curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD tee /etc/apt/trusted.gpg.d/hashicorp.asc
-  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+#  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com Jammy main"
   $SUDOCMD apt update
   $SUDOCMD apt install -y packer || true
   $SUDOCMD apt install -y terraform || true

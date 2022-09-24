@@ -106,7 +106,7 @@ source "vmware-iso" "ubuntu" {
     "<wait>",
     "<enter>",
     "c",
-    "<wait4s>",
+    "<wait5s>",
     "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
     "initrd /casper/initrd <enter>",
     "boot<enter>",
@@ -123,10 +123,19 @@ source "vmware-iso" "ubuntu" {
   guest_os_type     = var.guest_os_type
   headless          = false
   skip_compaction   = true
-#  iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
-  iso_checksum      = "file:https://codingflyboy.mm.fcix.net/ubuntu-releases/${var.os_version}/SHA256SUMS"
-#  iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-${var.cpu_arch}.iso"
-  iso_url          = "https://codingflyboy.mm.fcix.net/ubuntu-releases/${var.os_version}/ubuntu-${var.os_version}-live-server-${var.cpu_arch}.iso"
+
+  # jammy daily pending
+  iso_url          = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/pending/${var.os_codename}-live-server-arm64.iso"
+  iso_checksum      = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/pending/SHA256SUMS"
+
+  ## jammy release
+  # iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-${var.cpu_arch}.iso"
+  # iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
+
+  ## Jammy daily current
+  #iso_checksum      = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
+  #iso_url          = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
+
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"
