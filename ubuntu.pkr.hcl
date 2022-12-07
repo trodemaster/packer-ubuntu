@@ -142,7 +142,7 @@ source "vmware-iso" "ubuntu" {
   ssh_password      = var.user_password
   ssh_timeout       = "20m"
   ssh_username      = var.user_username
-  version           = "19"
+  version           = "20"
   vmx_data = {
     "bios.bootDelay"                 = "0500"
     "ethernet0.virtualdev"           = "e1000e"
