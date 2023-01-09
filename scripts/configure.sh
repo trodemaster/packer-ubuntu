@@ -15,7 +15,6 @@ if [[ -z $CONFIG_VM ]]; then
   CONFIG_VM=0
 else
   echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
-  SUDOCMD="sudo"
 fi
 
 echo "config container env var $CONFIG_CONTAINER"
@@ -24,7 +23,6 @@ if [[ -z $CONFIG_CONTAINER ]]; then
   CONFIG_CONTAINER=0
 else
   echo "CONFIG_CONTAINER set to $CONFIG_CONTAINER from env var"
-  SUDOCMD=""
   HOME="/"
 fi
 
@@ -93,6 +91,14 @@ if [[ $(uname -m) == "x86_64" ]]; then
 elif [[ $(uname -m) == "aarch64" ]]; then
   LINUX_ARCH="arm64"
 fi
+
+
+# do container specic things
+if [[ $(sudo virt-what) == "docker" ]]; then
+  # don't use sudo inside container
+  alias sudo=''
+fi
+
 
 vmware_tools() {
   # install open-vm-tools as needed
@@ -201,7 +207,7 @@ vm_config() {
 golang() {
   # install golang
   wget -q -O go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
-  $SUDOCMD tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
+  sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
   PATH=$PATH:/usr/local/go/bin
   go version
   rm go${GO_VERSION}.linux-${LINUX_ARCH}.tar.gz
@@ -386,13 +392,13 @@ PROFILE
 
 hashicorp() {
   # hashicorp
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD apt-key add -
-  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  $SUDOCMD apt update
-  $SUDOCMD apt install -y packer || true
-  $SUDOCMD apt install -y terraform || true
-  $SUDOCMD apt install -y vault || true
-  $SUDOCMD apt install --reinstall -y vault || true
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+  sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  sudo apt update
+  sudo apt install -y packer || true
+  sudo apt install -y terraform || true
+  sudo apt install -y vault || true
+  sudo apt install --reinstall -y vault || true
   vault version || true
   packer version || true
   terraform version || true
@@ -401,7 +407,7 @@ hashicorp() {
 apt_repo() {
   if [[ $APT_REPO != "0" ]]; then
     echo "updating apt repo"
-    $SUDOCMD sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
+    sudo sed -i "s/us.archive.ubuntu.com\/ubuntu/$APT_REPO/g" /etc/apt/sources.list
     cat /etc/apt/sources.list
   fi
 }
@@ -415,7 +421,7 @@ gh() {
 
 cleanup() {
   # clear logs
-  $SUDOCMD logrotate -f /etc/logrotate.conf
+  sudo logrotate -f /etc/logrotate.conf
 
   # Clear bash history
   >~/.bash_history

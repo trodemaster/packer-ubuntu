@@ -112,8 +112,8 @@ source "vmware-iso" "ubuntu" {
     "boot<enter>",
     "<wait180s>"
   ]
-  boot_key_interval = "2ms"
-  boot_wait         = "1s"
+  boot_key_interval = "5ms"
+  boot_wait         = "5s"
   cpus              = var.cpu_count
   cores             = var.cpu_count
   memory            = var.ram_gb * 1024
@@ -221,8 +221,8 @@ source "qemu" "ubuntu" {
     "boot<enter>",
     "<wait200s>"
   ]
-  boot_key_interval = "3ms"
-  boot_wait         = "1s"
+  boot_key_interval = "5ms"
+  boot_wait         = "5s"
   firmware = "files/RELEASEAARCH64_QEMU_EFI.fd"
   qemu_binary = "qemu-system-aarch64"
   qemuargs = [
