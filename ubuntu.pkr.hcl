@@ -88,6 +88,21 @@ variable "docker_login_server" {
   default = "docker.io"
 }
 
+variable "iso_url" {
+  type = string
+  default = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/jammy/daily-live/pending/jammy-live-server-arm64.iso"
+}
+
+variable "iso_checksum" {
+  type = string
+  default = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/jammy/daily-live/pending/SHA256SUMS"
+}
+
+variable "headless" {
+  type = bool
+  default = true
+}
+
 source "vmware-iso" "ubuntu" {
   display_name    = "{{build_name}} ${var.os_version}"
   vm_name         = "{{build_name}}_${var.os_version}"
@@ -121,21 +136,10 @@ source "vmware-iso" "ubuntu" {
   disk_size         = var.disk_gb * 1024
   disk_type_id      = "0"
   guest_os_type     = var.guest_os_type
-  headless          = false
+  headless          = var.headless
   skip_compaction   = true
-
-  # jammy daily pending
-  iso_url          = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/pending/${var.os_codename}-live-server-arm64.iso"
-  iso_checksum      = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/pending/SHA256SUMS"
-
-  ## jammy release
-  # iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-${var.cpu_arch}.iso"
-  # iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
-
-  ## Jammy daily current
-  #iso_checksum      = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/current/SHA256SUMS"
-  #iso_url          = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/${var.os_codename}/daily-live/current/${var.os_codename}-live-server-${var.cpu_arch}.iso"
-
+  iso_url = var.iso_url
+  iso_checksum = var.iso_checksum
   output_directory  = "output/{{build_name}}_${var.os_version}"
   shutdown_command  = "sudo shutdown -P now"
   shutdown_timeout  = "5m"

@@ -1,0 +1,127 @@
+#!/opt/local/bin/bash
+IFS=$'\n\t'
+shopt -s nullglob nocaseglob
+
+# Set strict mode after reading env vars
+set -euo pipefail
+
+# Define global variables and set defaults
+VM_BOOT=0
+LAUNCHD_SETUP=0
+VM_REBOOT=0
+VM_HALT=0
+VM_IP=0
+VM_PATH="output/ubuntu_22.04.1/ubuntu_22.04.1.vmx"
+VM_SSH=0
+
+# print out usage
+usage() {
+  cat <<EOF
+USAGE: ./macsl -b
+OPTIONS:
+   -b    Boot up the VM
+   -r    Rebot the VM
+   -x    Halt the VM
+   -i    Output the VM IP
+   -s    SSH to the VM
+   -h    Help
+EOF
+  exit 0
+}
+
+# process options and arguments
+while getopts "brxsv:ih" OPTION; do
+  case $OPTION in
+  b) VM_BOOT=1 ;;
+  r) VM_REBOOT=1 ;;
+  x) VM_HALT=1 ;;
+  i) VM_IP=1 ;;
+  s) VM_SSH=1 ;;
+  h) usage && exit 0 ;;
+  *) usage && exit 0 ;;
+  esac
+done
+
+# catch no options
+if [[ $(($VM_BOOT + $VM_HALT + $VM_IP + $VM_REBOOT + $VM_SSH)) == "0" ]]; then
+  usage && exit 0
+fi
+
+# fusion path
+if [[ -e "/Applications/VMware Fusion Tech Preview.app/Contents/Public" ]]; then
+  FUSION_PATH="/Applications/VMware Fusion Tech Preview.app/Contents/Public"
+else
+  FUSION_PATH="/Applications/VMware Fusion.app/Contents/Public"
+fi
+
+vm_boot() {
+  echo "VM BOOT"
+  echo "vmrun start $VM_PATH nogui"
+  vmrun start "$VM_PATH" #nogui
+}
+
+vm_reboot() {
+  echo "VM REBOOT"
+  vmrun reset "$VM_PATH" hard
+}
+
+VM_HALT() {
+  echo "VM SHUTDOWN"
+  vmrun stop "$VM_PATH" hard
+}
+
+vm_path() {
+  if [[ -e "$VM_PATH" ]]; then
+    echo "VM PATH: $VM_PATH"
+else
+    echo "The path $VM_PATH is not valid"
+    usage
+    exit 1
+  fi
+
+  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
+    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
+    usage
+    exit 1
+  fi
+}
+
+vm_ip() {
+  echo "VM IP"
+  vmrun getGuestIPAddress $VM_PATH
+}
+
+vm_ssh() {
+  echo "SSH VM" ssh -4 -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" blake@ubuntu2204.local
+  ssh -4 -o "IdentityAgent /Users/blake/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" blake@ubuntu2204.local
+}
+# at some point pull username and hostname from pkrvars
+
+# script flow logic
+if [[ $VM_PATH != 0 ]]; then
+  echo "running vm path"
+  vm_path
+fi
+
+if [[ $VM_BOOT == 1 ]]; then
+  vm_boot
+fi
+
+if [[ $VM_REBOOT == 1 ]]; then
+  vm_reboot
+fi
+
+if [[ $VM_HALT == 1 ]]; then
+  VM_HALT
+fi
+
+if [[ $VM_IP == 1 ]]; then
+  vm_ip
+fi
+
+if [[ $VM_SSH == 1 ]]; then
+  vm_ssh
+fi
+
+echo "End of Line..."
+exit 0
