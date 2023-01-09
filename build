@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+#set -euo pipefail
 IFS=$'\n\t'
 shopt -s nullglob nocaseglob
 
@@ -10,11 +10,31 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
-# VARS
-THING_1=1
-# smart defaults..
-# macos + arch = vmw host arch
-# linux + arch = docker host arch
+## take var file input
+#if [[ $# -eq 0 ]]; then
+#  if [[ -e ${SCRIPTPATH}/ubuntu.auto.pkrvars.hcl ]];then
+#    VARFILE=${SCRIPTPATH}/ubuntu.auto.pkrvars.hcl
+#  else
+#    echo "VARS file ${SCRIPTPATH}/ubuntu.auto.pkrvars.hcl not found!!"
+#    exit 1
+#  fi
+#else
+#  if [[ -e $1 ]]; then
+#    VARFILE=$1
+#  fi
+#fi
+## echo "varfile $VARFILE"#
+
+## read var file values
+#if [[ -e $VARFILE ]]; then
+#  VARS_FROM_FILE=$(sed 's/ = "/="/g' <"$VARFILE" | sed 's/^/export /')
+#  eval "$VARS_FROM_FILE"
+#else
+#  echo "Var file $VARFILE not found!!"
+#  exit 1
+#fi
+
+# determine host arch
 ARCH="amd64"
 if [[ $(uname -m) == "x86_64" ]]; then
   ARCH="amd64"
@@ -24,67 +44,8 @@ elif [[ $(uname -m) =~ (arm64|aarch64) ]]; then
   GUESTOS="arm-ubuntu-64"
 fi
 
-# default build action
-if [[ $(uname) =~ "Linux" ]]; then
-  packer build -force -only remote.docker.ubuntu -on-error abort -var cpu_arch=$ARCH .
-elif [[ $(uname) =~ "Darwin" ]]; then
-  if [[ $ARCH =~ "amd64" ]]; then
-    vmrun stop /Users/blake/code/packer-ubuntu/output/ubuntu_22.04.1/ubuntu_22.04.1.vmx || true
-    PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
-  elif [[ $ARCH =~ "arm64" ]]; then
-    PACKER_LOG=1 packer build -force -only qemu.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
-  fi
-fi
-
-exit 0
-
-# print out usage
-usage() {
-  cat <<EOF
-USAGE: ./build -v
-OPTIONS:
-   -v    vmw
-   -d    docker
-   -q    qemu
-   -z    azure
-   -a    aws
-   -h    Help
-EOF
-  exit
-}
-
-# process options and arguments
-while getopts "tbp:o:adh" OPTION; do
-  case $OPTION in
-  h) usage && exit 1 ;;
-  p) INPUT_PATH=$OPTARG ;;
-  o) OUTPUT_PATH=$OPTARG ;;
-  t) THING_1=0 ;;
-  d) HD_ARCHIVE=0 ;;
-  b) BADPEG=0 ;;
-  esac
-done
-
-thing_1() {
-  echo "thing 1"
-}
-
-if [[ $THING_1 == 0 ]]; then
-  thing_1
-fi
-
-#!/bin/bash
-
-build pkrvariablesfilesname.pkrvars.hcl ?
-build vmw arm
-build qemu arm
-build docker arm
-build vmw amd64
-build qemu amd64
-build docker amd64
-build azure amd64
-build azure arm
-build aws amd64
-build aws arm
+#vmrun stop /Users/blake/code/packer-ubuntu/output/ubuntu_22.04/ubuntu_22.04.vmx || true
+# PACKER_LOG=1 packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS -on-error abort .
+packer build -force -only vmware-iso.ubuntu -var cpu_arch=$ARCH -var guest_os_type=$GUESTOS .
 
 exit 0
