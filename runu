@@ -11,7 +11,7 @@ LAUNCHD_SETUP=0
 VM_REBOOT=0
 VM_HALT=0
 VM_IP=0
-VM_PATH="output/ubuntu_22.04.1/ubuntu_22.04.1.vmx"
+VM_PATH="output/ubuntu_22.04.2/ubuntu_22.04.2.vmx"
 VM_SSH=0
 
 # print out usage

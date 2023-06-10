@@ -61,6 +61,13 @@ else
   echo "CONFIG_IRON set to $CONFIG_IRON from env var"
 fi
 
+if [[ -z $CONFIG_PLAIN ]]; then
+  echo "unset CONFIG_PLAIN"
+  CONFIG_PLAIN=0
+else
+  echo "CONFIG_PLAIN set to $CONFIG_PLAIN from env var"
+fi
+
 # need to set bash strict mode after slurping up vars
 set -euo pipefail
 
@@ -92,7 +99,7 @@ while getopts "vcgthp" OPTION; do
 done
 
 # configurables
-GO_VERSION="1.18.1"
+GO_VERSION="1.19.7"
 if [[ $(uname -m) == "x86_64" ]]; then
   LINUX_ARCH="amd64"
 elif [[ $(uname -m) == "aarch64" ]]; then
@@ -147,8 +154,10 @@ vm_packages() {
   sudo add-apt-repository ppa:cappelikan/ppa
   sudo apt update
   sudo apt -y dist-upgrade
-  sudo apt -y install jq neofetch glances git wget unzip tmux autoconf python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common mainline
+  sudo apt -y install virt-what jq neofetch glances git wget unzip tmux autoconf python3 python3-pip python-is-python3 mlocate byobu avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan tree acl apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common mainline
   sudo mainline --install-latest --yes # --include-unstable
+  # sudo apt -y install raspi-config linux-tools-raspi linux-firmware-raspi
+  # sudo apt -y install linux-raspi linux-modules-extra-raspi linux-image-raspi
   sudo purge-old-kernels -y
   sudo apt autoremove --purge
 }
@@ -213,6 +222,10 @@ vm_config() {
 
   # remove cloud-init
   sudo apt -y remove cloud-init
+
+  # config avahi
+#  sudo sed -i 's/use-ipv4=yes/use-ipv4=no/g' /etc/avahi/avahi-daemon.conf
+#  sudo sed -i 's/#publish-addresses=yes/publish-addresses=yes/g' /etc/avahi/avahi-daemon.conf
 
 }
 
@@ -404,7 +417,6 @@ PROFILE
 
 hashicorp() {
   # hashicorp
-<<<<<<< HEAD
   curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
   sudo apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
   sudo apt update
@@ -412,16 +424,6 @@ hashicorp() {
   sudo apt install -y terraform || true
   sudo apt install -y vault || true
   sudo apt install --reinstall -y vault || true
-=======
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | $SUDOCMD tee /etc/apt/trusted.gpg.d/hashicorp.asc
-#  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  $SUDOCMD apt-add-repository "deb [arch=${LINUX_ARCH}] https://apt.releases.hashicorp.com Jammy main"
-  $SUDOCMD apt update
-  $SUDOCMD apt install -y packer || true
-  $SUDOCMD apt install -y terraform || true
-  $SUDOCMD apt install -y vault || true
-  $SUDOCMD apt install --reinstall -y vault || true
->>>>>>> eb107546b518edfed7028dc7d3ce9d95961b148a
   vault version || true
   packer version || true
   terraform version || true
@@ -449,6 +451,13 @@ cleanup() {
   # Clear bash history
   >~/.bash_history
 }
+
+if [[ $CONFIG_PLAIN =~ "1" ]]; then
+  echo "########vmware_tools########"
+  vmware_tools
+  echo "########cleanup########"
+  cleanup
+fi
 
 if [[ $CONFIG_IRON =~ "1" ]]; then
   echo "########vm_packages########"

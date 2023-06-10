@@ -13,6 +13,11 @@ variable "user_username" {
   default = "ubuntu"
 }
 
+variable "boot_wait" {
+  type = string
+  default = "5s"
+}
+
 variable "hostname" {
   type    = string
   default = "ubuntu"
@@ -103,6 +108,14 @@ variable "headless" {
   default = true
 }
 
+variable "plain_config" {
+  default = "0"
+}
+
+variable "config_vm" {
+  default = "1"
+}
+
 source "vmware-iso" "ubuntu" {
   display_name    = "{{build_name}} ${var.os_version}"
   vm_name         = "{{build_name}}_${var.os_version}"
@@ -118,17 +131,17 @@ source "vmware-iso" "ubuntu" {
     })
   }
   boot_command = [
-    "<wait>",
+    "c<wait>",
+    "linux /casper/vmlinuz --- autoinstall ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"",
+    "<enter><wait>",
+    "initrd /casper/initrd",
+    "<enter><wait>",
+    "boot",
     "<enter>",
-    "c",
-    "<wait5s>",
-    "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/initrd <enter>",
-    "boot<enter>",
-    "<wait180s>"
+    "<wait300>"
   ]
   boot_key_interval = "5ms"
-  boot_wait         = "5s"
+  boot_wait         = var.boot_wait
   cpus              = var.cpu_count
   cores             = var.cpu_count
   memory            = var.ram_gb * 1024
@@ -235,7 +248,7 @@ source "qemu" "ubuntu" {
     "<wait200s>"
   ]
   boot_key_interval = "5ms"
-  boot_wait         = "5s"
+  boot_wait         = var.boot_wait
   firmware = "files/RELEASEAARCH64_QEMU_EFI.fd"
   qemu_binary = "qemu-system-aarch64"
   qemuargs = [
@@ -364,7 +377,8 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "CONFIG_VM=1",
+      "PLAIN_CONFIG=${var.plain_config}",
+      "CONFIG_VM=${var.config_vm}",
       "APT_REPO=${var.apt_repo}"
     ]
     scripts = [

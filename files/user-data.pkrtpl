@@ -26,6 +26,8 @@ autoinstall:
     d-i base-installer/kernel/override-image string linux-image-virtual-hwe-22.04-edge
   packages:
     - efibootmgr
+    - virt-what
+    - jq
 #    - linux-image-virtual-hwe-22.04-edge
   user-data:
     disable_root: false
