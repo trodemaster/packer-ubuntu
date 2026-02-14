@@ -1,3 +1,13 @@
+packer {
+  required_version = ">= 1.7.0"
+  required_plugins {
+    vmware = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/vmware"
+    }
+  }
+}
+
 variable "user_password" {
   type    = string
   default = "ubuntu"
@@ -5,7 +15,7 @@ variable "user_password" {
 
 variable "user_password_hash" {
   type    = string
-  default = "$6$MfDK0nZgfqn7r48w$34F7qOuYtOyZTSb20iFvhdmSYI/GnExPcY.dWjl.ROIMjkz1/eh4KpbvlA8fBkFVEFHMFqJJAVB3fnnXvmUtv/"
+  default = "" # set in ubuntu.auto.pkrvars.hcl; generate: openssl passwd -6 -salt $(openssl rand -hex 4) 'yourpassword'
 }
 
 variable "user_username" {
@@ -23,24 +33,9 @@ variable "hostname" {
   default = "ubuntu"
 }
 
-variable "docker_imagename" {
-  type    = string
-  default = "devctnr"
-}
-
-variable "cpu_arch" {
-  type    = string
-  default = "amd64"
-}
-
 variable "os_version" {
   type    = string
-  default = "20.04.3"
-}
-
-variable "os_codename" {
-  type    = string
-  default = "focal"
+  default = "25.10"
 }
 
 variable "guest_os_type" {
@@ -73,47 +68,19 @@ variable "ssh_key" {
   default = ""
 }
 
-variable "apt_repo" {
-  type = string
-  default = "0"
-}
-
-variable "docker_login_username" {
-  type = string
-  default = "packer"
-}
-
-variable "docker_login_password" {
-  type = string
-  default = "packer"
-}
-
-variable "docker_login_server" {
-  type = string
-  default = "docker.io"
-}
-
 variable "iso_url" {
-  type = string
-  default = "https://cdimage.ubuntu.com/cdimage/ubuntu-server/jammy/daily-live/pending/jammy-live-server-arm64.iso"
+  type    = string
+  default = "https://mirror.fcix.net/ubuntu-releases/25.10/ubuntu-25.10-live-server-amd64.iso"
 }
 
 variable "iso_checksum" {
-  type = string
-  default = "file:https://cdimage.ubuntu.com/cdimage/ubuntu-server/jammy/daily-live/pending/SHA256SUMS"
+  type    = string
+  default = "file:https://mirror.fcix.net/ubuntu-releases/25.10/SHA256SUMS"
 }
 
 variable "headless" {
-  type = bool
-  default = true
-}
-
-variable "plain_config" {
-  default = "0"
-}
-
-variable "config_vm" {
-  default = "1"
+  type    = bool
+  default = false
 }
 
 source "vmware-iso" "ubuntu" {
@@ -162,7 +129,7 @@ source "vmware-iso" "ubuntu" {
   version           = "20"
   vmx_data = {
     "bios.bootDelay"                 = "0500"
-    "ethernet0.virtualdev"           = "e1000e"
+    "ethernet0.virtualdev"           = "vmxnet3"
     firmware                         = "efi"
     "powerType.powerOff"             = "hard"
     "powerType.powerOn"              = "hard"
@@ -210,179 +177,14 @@ source "vmware-iso" "ubuntu" {
   }
 }
 
-source "qemu" "ubuntu" {
-  iso_checksum      = "file:https://cdimage.ubuntu.com/releases/${var.os_version}/release/SHA256SUMS"
-  iso_url           = "https://cdimage.ubuntu.com/releases/${var.os_version}/release/ubuntu-${var.os_version}-live-server-arm64.iso"
-  output_directory  = "output/{{build_name}}_${var.os_version}"
-  shutdown_command  = "sudo shutdown -P now"
-  shutdown_timeout  = "5m"
-  disk_size         = var.disk_gb * 1024
-  memory = var.ram_gb * 1024
-  format            = "qcow2"
-  accelerator       = "hvf"
-  ssh_password      = var.user_password
-  ssh_timeout       = "10m"
-  ssh_username      = var.user_username
-  vm_name         = "{{build_name}}_${var.os_version}.qcow2"
-  net_device        = "virtio-net"
-  disk_interface    = "virtio"
-  http_content = {
-    "/meta-data" = ""
-    "/user-data" = templatefile("${path.root}/files/user-data.pkrtpl", {
-      ssh_key            = var.ssh_key
-      hostname           = var.hostname
-      user_username      = var.user_username
-      user_password_hash = var.user_password_hash
-    })
-  }
-  boot_command = [
-    "<wait2>",
-    "<e>",
-    "<f2>",
-    "<enter>",
-    "<wait>",
-    "set gfxpayload=keep <enter>",
-    "linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/initrd <enter>",
-    "boot<enter>",
-    "<wait200s>"
-  ]
-  boot_key_interval = "5ms"
-  boot_wait         = var.boot_wait
-  firmware = "files/RELEASEAARCH64_QEMU_EFI.fd"
-  qemu_binary = "qemu-system-aarch64"
-  qemuargs = [
-  [ "-nodefaults" ],
-  [ "-vga", "none" ],
-  [ "-display", "cocoa,show-cursor=on"],
-  [ "-device", "virtio-rng-pci" ],
-  [ "-cpu", "host" ],
-  [ "-smp", "cpus=8,sockets=1,cores=8,threads=1" ],
-  [ "-machine", "virt,highmem=off" ],
-  [ "-accel", "hvf" ],
-  [ "-accel", "tcg,tb-size=8192" ],
-  [ "-boot", "menu=on" ],
-  [ "-netdev", "user,hostfwd=tcp::{{ .SSHHostPort }}-:22,id=forward"], 
-  [ "-device", "virtio-net-device,netdev=forward,id=net0"],
-  [ "-device", "usb-ehci" ],
-  [ "-device", "usb-kbd" ], 
-  [ "-device", "usb-mouse" ],
-  [ "-device", "virtio-gpu-pci" ]
-
-]
-}
-
 build {
-  sources = ["source.qemu.ubuntu"]
-    provisioner "file" {
-    sources     = ["files/config.json"]
-    destination = "/tmp/"
-  }
-
-  provisioner "shell" {
-    environment_vars = [
-      "CONFIG_VM=1",
-      "APT_REPO=${var.apt_repo}"
-    ]
-    scripts = [
-      "scripts/configure.sh",
-      "scripts/qemu.sh"
-    ]
-  }
-}
-
-
-
-
-source "docker" "ubuntu" {
-  image = "ubuntu"
-  commit = true
-  changes = [
-    "ENTRYPOINT [\"/usr/bin/dumb-init\", \"--\"]",
-    "CMD /usr/local/bin/sshd && exec /usr/sbin/sshd",
-    "ENV TERM xterm-256color",
-    "ENV TZ America/Los_Angeles",
-    "ENV DEBIAN_FRONTEND noninteractive",
-    "EXPOSE 443 22"
-  ]
-}
-
-build {
-  name    = "remote"
-  sources = ["source.docker.ubuntu"]
-
-  provisioner "file" {
-    sources     = ["files/config.json", "files/sshd"]
-    destination = "/tmp/"
-  }
-
-  provisioner "shell" {
-    environment_vars = [
-      "CONFIG_CONTAINER=1",
-      "APT_REPO=${var.apt_repo}",
-      "SSH_KEY=${var.ssh_key}"
-    ]
-    scripts = [
-      "scripts/configure.sh"
-    ]
-  }
-
-  post-processors {
-    post-processor "docker-tag" {
-      repository = join("", [var.docker_login_server, "/", var.docker_imagename])
-      tags       = ["latest"]
-    }
-    post-processor "docker-push" {
-      login          = true
-      login_server   = var.docker_login_server
-      login_username = var.docker_login_username
-      login_password = var.docker_login_password
-    }
-  }
-}
-
-build {
-  name    = "local"
-  sources = ["source.docker.ubuntu"]
-
-  provisioner "file" {
-    sources     = ["files/config.json", "files/sshd"]
-    destination = "/tmp/"
-  }
-
-  provisioner "shell" {
-    environment_vars = [
-      "CONFIG_CONTAINER=1",
-      "APT_REPO=${var.apt_repo}",
-      "SSH_KEY=${var.ssh_key}"
-    ]
-    scripts = [
-      "scripts/configure.sh"
-    ]
-  }
-
-    post-processor "docker-tag" {
-      repository = var.docker_imagename
-      tags       = [ "latest" ]
-    }
-}
-
-# vmware-iso build
-build {
+  name    = "vmware-iso"
   sources = ["source.vmware-iso.ubuntu"]
-  provisioner "file" {
-    sources     = ["files/config.json"]
-    destination = "/tmp/"
-  }
 
   provisioner "shell" {
     environment_vars = [
-      "PLAIN_CONFIG=${var.plain_config}",
-      "CONFIG_VM=${var.config_vm}",
-      "APT_REPO=${var.apt_repo}"
+      "PACKER_USERNAME=${var.user_username}"
     ]
-    scripts = [
-      "scripts/configure.sh"
-    ]
+    scripts = ["scripts/configure.sh"]
   }
 }

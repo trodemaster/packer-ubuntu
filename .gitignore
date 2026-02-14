@@ -6,6 +6,7 @@ crash.log
 
 # For built boxes
 *.box
+output/
 .DS_Store
 nextbook.auto.pkrvars.hcl
 *.auto.pkrvars.hcl

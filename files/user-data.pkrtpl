@@ -22,13 +22,13 @@ autoinstall:
     install-server: yes
     allow-pw: true
     authorized-keys: ["${ssh_key}"]
-  debconf_selections: 
-    d-i base-installer/kernel/override-image string linux-image-virtual-hwe-22.04-edge
   packages:
+    - openssh-server
+    - open-vm-tools
+    - cloud-init
     - efibootmgr
     - virt-what
     - jq
-#    - linux-image-virtual-hwe-22.04-edge
   user-data:
     disable_root: false
   late-commands:
