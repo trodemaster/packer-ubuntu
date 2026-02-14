@@ -15,7 +15,7 @@ variable "user_password" {
 
 variable "user_password_hash" {
   type    = string
-  default = "" # set in ubuntu.auto.pkrvars.hcl; generate: openssl passwd -6 -salt $(openssl rand -hex 4) 'yourpassword'
+  default = "$6$MfDK0nZgfqn7r48w$34F7qOuYtOyZTSb20iFvhdmSYI/GnExPcY.dWjl.ROIMjkz1/eh4KpbvlA8fBkFVEFHMFqJJAVB3fnnXvmUtv/" # hash of "ubuntu"
 }
 
 variable "user_username" {
